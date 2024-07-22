@@ -1,15 +1,22 @@
 // godex-app/src/Pokemon.js
 
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Pokemon() {
   const [pokemonList, setPokemonList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPokemonList = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
       try {
         const response = await fetch(
           "https://pokeapi.co/api/v2/pokemon?limit=10000"
@@ -46,7 +53,7 @@ function Pokemon() {
     };
 
     fetchPokemonList();
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return <p>Loading...</p>;
