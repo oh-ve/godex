@@ -1,10 +1,15 @@
-// godex-app/src/Pokemon.js
-
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-function Pokemon() {
-  const [pokemonList, setPokemonList] = useState([]);
+interface Pokemon {
+  id: number;
+  name: string;
+  type: string;
+  sprite: string;
+}
+
+const Pokemon: React.FC = () => {
+  const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -13,7 +18,7 @@ function Pokemon() {
     const fetchPokemonList = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
-        navigate("/login");
+        navigate("/login"); // Redirect to login if no token found
         return;
       }
 
@@ -26,19 +31,21 @@ function Pokemon() {
         }
         const data = await response.json();
 
-        const fetchPokemonDetails = async (url) => {
+        const fetchPokemonDetails = async (url: string) => {
           const response = await fetch(url);
           const data = await response.json();
           return {
             id: data.id,
             name: data.name,
-            type: data.types.map((typeInfo) => typeInfo.type.name).join(", "),
+            type: data.types
+              .map((typeInfo: any) => typeInfo.type.name)
+              .join(", "),
             sprite: data.sprites.front_default,
           };
         };
 
         const detailedPokemonList = await Promise.all(
-          data.results.map(async (pokemon) => {
+          data.results.map(async (pokemon: { url: string }) => {
             const details = await fetchPokemonDetails(pokemon.url);
             return details;
           })
@@ -47,7 +54,7 @@ function Pokemon() {
         setPokemonList(detailedPokemonList);
         setLoading(false);
       } catch (err) {
-        setError(err.message);
+        setError((err as Error).message);
         setLoading(false);
       }
     };
@@ -77,6 +84,6 @@ function Pokemon() {
       ))}
     </div>
   );
-}
+};
 
 export default Pokemon;

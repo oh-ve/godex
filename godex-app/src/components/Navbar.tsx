@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-function Navbar() {
+const Navbar: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -14,6 +14,6 @@ function Navbar() {
       <button onClick={handleLogout}>Logout</button>
     </nav>
   );
-}
+};
 
 export default Navbar;
