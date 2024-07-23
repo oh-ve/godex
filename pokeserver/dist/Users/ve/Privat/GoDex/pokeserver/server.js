@@ -18,8 +18,8 @@ const cors_1 = __importDefault(require("cors"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const pokemonRoutes_1 = __importDefault(require("./routes/pokemonRoutes"));
-const auth_1 = require("./middleware/auth");
+const pokemonRoutes_1 = __importDefault(require("./src/routes/pokemonRoutes"));
+const auth_1 = require("./src/middleware/auth");
 dotenv_1.default.config();
 const pool = new pg_1.Pool({
     connectionString: process.env.DATABASE_URL,
