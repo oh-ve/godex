@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -33,24 +42,26 @@ const authenticateToken = (req, res, next) => {
         next();
     });
 };
-app.post("/api/register", async (req, res) => {
+app.post("/api/register", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, password, home } = req.body;
-    const hashedPassword = await bcryptjs_1.default.hash(password, 10);
+    const hashedPassword = yield bcryptjs_1.default.hash(password, 10);
     try {
-        const result = await pool.query("INSERT INTO public.users (username, password, home) VALUES ($1, $2, ST_GeogFromText($3)) RETURNING *", [username, hashedPassword, home]);
+        const result = yield pool.query("INSERT INTO users (username, password, home) VALUES ($1, $2, ST_GeogFromText($3)) RETURNING *", [username, hashedPassword, home]);
         res.status(201).json(result.rows[0]);
     }
     catch (err) {
         console.error("Error executing query:", err.stack);
         res.status(500).json({ error: "Internal Server Error" });
     }
-});
-app.post("/api/login", async (req, res) => {
+}));
+app.post("/api/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, password } = req.body;
     try {
-        const result = await pool.query("SELECT * FROM public.users WHERE username = $1", [username]);
+        const result = yield pool.query("SELECT * FROM users WHERE username = $1", [
+            username,
+        ]);
         const user = result.rows[0];
-        if (!user || !(await bcryptjs_1.default.compare(password, user.password))) {
+        if (!user || !(yield bcryptjs_1.default.compare(password, user.password))) {
             return res.status(401).json({ error: "Invalid credentials" });
         }
         const accessToken = jsonwebtoken_1.default.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, { expiresIn: "1h" });
@@ -60,56 +71,82 @@ app.post("/api/login", async (req, res) => {
         console.error("Error executing query:", err.stack);
         res.status(500).json({ error: "Internal Server Error" });
     }
-});
+}));
 app.get("/api/protected", authenticateToken, (req, res) => {
     res.json({ message: "This is a protected route", user: req.user });
 });
 app.get("/", (req, res) => {
     res.send("Welcome to the Pokémon API!");
 });
-app.get("/api/users", async (req, res) => {
+app.get("/api/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = await pool.query("SELECT * FROM public.users");
+        const result = yield pool.query("SELECT * FROM users");
         res.json(result.rows);
     }
     catch (err) {
         console.error("Error executing query:", err.stack);
         res.status(500).json({ error: "Internal Server Error" });
     }
-});
-app.post("/api/users", async (req, res) => {
+}));
+app.post("/api/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, password, home } = req.body;
-    const hashedPassword = await bcryptjs_1.default.hash(password, 10);
+    const hashedPassword = yield bcryptjs_1.default.hash(password, 10);
     try {
-        const result = await pool.query("INSERT INTO public.users (username, password, home) VALUES ($1, $2, ST_GeogFromText($3)) RETURNING *", [username, hashedPassword, home]);
+        const result = yield pool.query("INSERT INTO users (username, password, home) VALUES ($1, $2, ST_GeogFromText($3)) RETURNING *", [username, hashedPassword, home]);
         res.status(201).json(result.rows[0]);
     }
     catch (err) {
         console.error("Error executing query:", err.stack);
         res.status(500).json({ error: "Internal Server Error" });
     }
-});
-app.get("/api/pokemon", authenticateToken, async (req, res) => {
+}));
+app.get("/api/pokemon", authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = await pool.query("SELECT * FROM public.pokemon");
+        const result = yield pool.query("SELECT * FROM pokemon");
         res.json(result.rows);
     }
     catch (err) {
         console.error("Error executing query:", err.stack);
         res.status(500).json({ error: "Internal Server Error" });
     }
-});
-app.post("/api/pokemon", authenticateToken, async (req, res) => {
+}));
+app.post("/api/pokemon", authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user_id, name, nickname, is_shiny, iv, date, location, distance } = req.body;
     try {
-        const result = await pool.query("INSERT INTO public.pokemon (user_id, name, nickname, is_shiny, iv, date, location, distance) VALUES ($1, $2, $3, $4, $5, $6, ST_GeogFromText($7), $8) RETURNING *", [user_id, name, nickname, is_shiny, iv, date, location, distance]);
+        const result = yield pool.query("INSERT INTO pokemon (user_id, name, nickname, is_shiny, iv, date, location, distance) VALUES ($1, $2, $3, $4, $5, $6, ST_GeogFromText($7), $8) RETURNING *", [user_id, name, nickname, is_shiny, iv, date, location, distance]);
         res.status(201).json(result.rows[0]);
     }
     catch (err) {
         console.error("Error executing query:", err.stack);
         res.status(500).json({ error: "Internal Server Error" });
     }
-});
+}));
+app.get("/api/pokemon/:id", authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const result = yield pool.query("SELECT * FROM pokemon WHERE id = $1", [
+            id,
+        ]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Pokémon not found" });
+        }
+        res.json(result.rows[0]);
+    }
+    catch (err) {
+        console.error("Error executing query:", err.stack);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}));
+app.delete("/api/pokemon", authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield pool.query("DELETE FROM pokemon");
+        res.json({ message: "All Pokémon deleted successfully" });
+    }
+    catch (err) {
+        console.error("Error executing query:", err.stack);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}));
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
