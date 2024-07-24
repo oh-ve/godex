@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./components/Login";
 import Pokemon from "./components/Pokemon";
+import PokemonForm from "./components/PokemonForm";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Pokemon />} />
+          <Route path="/add-pokemon" element={<PokemonForm />} />
         </Routes>
       </div>
     </Router>
