@@ -8,6 +8,7 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { parseLocation } from "../utils";
 
 const markerIcon = new L.Icon({
   iconUrl: require("leaflet/dist/images/marker-icon.png"),
@@ -36,17 +37,11 @@ const UserDetails: React.FC = () => {
         const data = await response.json();
         setUsername(data.user.username);
         if (data.user.home) {
-          console.log("Raw home data:", data.user.home); // Log raw home data
-          try {
-            const homeCoords = data.user.home
-              .match(/POINT\(([^)]+)\)/)[1]
-              .split(" ");
-            const homePosition = L.latLng(
-              parseFloat(homeCoords[1]),
-              parseFloat(homeCoords[0])
-            );
-            setPosition(homePosition);
-          } catch (error) {
+          console.log("Raw home data:", data.user.home);
+          const homeCoords = parseLocation(data.user.home);
+          if (homeCoords) {
+            setPosition(L.latLng(homeCoords.lat, homeCoords.lng));
+          } else {
             console.error("Failed to parse home location:", data.user.home);
           }
         }

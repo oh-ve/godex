@@ -1,4 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import { parseLocation } from "../utils";
+
+const markerIcon = new L.Icon({
+  iconUrl: require("leaflet/dist/images/marker-icon.png"),
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
 
 interface DecodedToken {
   id: number;
@@ -26,8 +42,40 @@ function PokemonForm() {
   const [isShiny, setIsShiny] = useState(false);
   const [iv, setIv] = useState<number | string>("");
   const [date, setDate] = useState("");
-  const [location, setLocation] = useState("");
+  const [position, setPosition] = useState<L.LatLng | null>(null);
+  const [homePosition, setHomePosition] = useState<L.LatLng | null>(null);
   const [distance, setDistance] = useState(false);
+
+  useEffect(() => {
+    const fetchUserHome = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        return;
+      }
+
+      const response = await fetch("http://localhost:8080/api/protected", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.user.home) {
+          console.log("Raw home data:", data.user.home);
+          const homeCoords = parseLocation(data.user.home);
+          if (homeCoords) {
+            const homePosition = L.latLng(homeCoords.lat, homeCoords.lng);
+            setHomePosition(homePosition);
+          } else {
+            console.error("Failed to parse home location:", data.user.home);
+          }
+        }
+      }
+    };
+
+    fetchUserHome();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,9 +91,13 @@ function PokemonForm() {
     const payload = {
       user_id: decodedToken.id,
       name,
+      nickname,
       is_shiny: isShiny,
       iv: typeof iv === "string" ? parseFloat(iv) : iv,
       date,
+      location: position
+        ? `SRID=4326;POINT(${position.lng} ${position.lat})`
+        : null,
       distance,
     };
 
@@ -70,11 +122,32 @@ function PokemonForm() {
       setIsShiny(false);
       setIv("");
       setDate("");
-      setLocation("");
+      setPosition(null);
       setDistance(false);
     } catch (error) {
       alert((error as Error).message); // Explicitly type 'error' as 'Error'
     }
+  };
+
+  const LocationMarker = () => {
+    const map = useMap();
+    useEffect(() => {
+      if (homePosition) {
+        map.setView(homePosition, map.getZoom());
+        setPosition(homePosition); // Set initial marker at home position
+      }
+    }, [homePosition, map]);
+
+    useMapEvents({
+      click(e) {
+        setPosition(e.latlng);
+        map.flyTo(e.latlng, map.getZoom());
+      },
+    });
+
+    return position === null ? null : (
+      <Marker position={position} icon={markerIcon}></Marker>
+    );
   };
 
   return (
@@ -134,16 +207,6 @@ function PokemonForm() {
       </div>
       <div>
         <label>
-          Location (GeoData):
-          <input
-            type="text"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
           Distance:
           <input
             type="checkbox"
@@ -152,9 +215,28 @@ function PokemonForm() {
           />
         </label>
       </div>
+      <div>
+        <label>
+          Location (Pick from map):
+          <div style={{ height: "400px", width: "100%" }}>
+            <MapContainer
+              center={homePosition || [51.505, -0.09]}
+              zoom={13}
+              style={{ height: "100%", width: "100%" }}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              <LocationMarker />
+            </MapContainer>
+          </div>
+        </label>
+      </div>
       <button type="submit">Add Pokémon</button>
     </form>
   );
 }
 
 export default PokemonForm;
+s;
