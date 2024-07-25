@@ -239,4 +239,3 @@ function PokemonForm() {
 }
 
 export default PokemonForm;
-s;
