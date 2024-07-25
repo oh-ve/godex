@@ -1,14 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import type { Pokemon } from "../types";
 
-interface Pokemon {
-  id: number;
-  name: string;
-  type: string;
-  sprite: string;
-}
-
-const Pokemon: React.FC = () => {
+const Home: React.FC = () => {
   const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -18,7 +12,7 @@ const Pokemon: React.FC = () => {
     const fetchPokemonList = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
-        navigate("/login"); // Redirect to login if no token found
+        navigate("/login");
         return;
       }
 
@@ -86,4 +80,4 @@ const Pokemon: React.FC = () => {
   );
 };
 
-export default Pokemon;
+export default Home;
