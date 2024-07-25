@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -128,18 +128,9 @@ function PokemonForm() {
   };
 
   const LocationMarker = () => {
-    const map = useMap();
-
-    useEffect(() => {
-      if (homePosition) {
-        map.setView(homePosition, map.getZoom());
-      }
-    }, [homePosition, map]);
-
     useMapEvents({
       click(e) {
         setPosition(e.latlng);
-        map.flyTo(e.latlng, map.getZoom());
       },
     });
 
@@ -207,17 +198,19 @@ function PokemonForm() {
         <label>
           Location (Pick from map):
           <div style={{ height: "400px", width: "100%" }}>
-            <MapContainer
-              center={homePosition || [51.505, -0.09]}
-              zoom={13}
-              style={{ height: "100%", width: "100%" }}
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              />
-              <LocationMarker />
-            </MapContainer>
+            {homePosition && (
+              <MapContainer
+                center={homePosition}
+                zoom={13}
+                style={{ height: "100%", width: "100%" }}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                <LocationMarker />
+              </MapContainer>
+            )}
           </div>
         </label>
       </div>
