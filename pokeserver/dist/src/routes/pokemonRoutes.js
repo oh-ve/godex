@@ -17,8 +17,14 @@ const pool = new pg_1.Pool({
 });
 const router = (0, express_1.Router)();
 router.get("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const result = yield pool.query("SELECT * FROM pokemon");
+        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+        if (!userId) {
+            return res.status(400).json({ error: "User ID not found" });
+        }
+        console.log("Fetching Pokémon for user ID:", userId); // Add this log
+        const result = yield pool.query("SELECT * FROM pokemon WHERE user_id = $1", [userId]);
         res.json(result.rows);
     }
     catch (err) {

@@ -10,7 +10,17 @@ const router = Router();
 
 router.get("/", authenticateToken, async (req: Request, res: Response) => {
   try {
-    const result = await pool.query("SELECT * FROM pokemon");
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(400).json({ error: "User ID not found" });
+    }
+
+    console.log("Fetching Pokémon for user ID:", userId); // Add this log
+
+    const result = await pool.query(
+      "SELECT * FROM pokemon WHERE user_id = $1",
+      [userId]
+    );
     res.json(result.rows);
   } catch (err: any) {
     console.error("Error executing query:", err.stack);
