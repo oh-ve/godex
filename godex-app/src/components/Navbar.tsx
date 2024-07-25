@@ -13,6 +13,7 @@ const Navbar: React.FC = () => {
       <button onClick={handleLogout}>Logout</button>
       <Link to="/">Home</Link>
       <Link to="/add-pokemon">Add Pokemon</Link>
+      <Link to="/user-details">User details</Link>
     </nav>
   );
 };

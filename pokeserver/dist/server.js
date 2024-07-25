@@ -77,9 +77,27 @@ app.post("/api/update-home", auth_1.authenticateToken, (req, res) => __awaiter(v
         res.status(500).json({ error: "Internal Server Error" });
     }
 }));
-app.get("/api/protected", auth_1.authenticateToken, (req, res) => {
-    res.json({ message: "This is a protected route", user: req.user });
-});
+app.get("/api/protected", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+    if (!userId) {
+        return res.status(400).json({ error: "User ID not found" });
+    }
+    try {
+        console.log("Fetching details for user ID:", userId);
+        const result = yield pool.query("SELECT id, username, ST_AsText(home) as home FROM users WHERE id = $1", [userId]);
+        console.log("Query result:", result.rows);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        const user = result.rows[0];
+        res.json({ user });
+    }
+    catch (err) {
+        console.error("Error executing query:", err.stack);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}));
 app.get("/", (req, res) => {
     res.send("Welcome to the Pokémon API!");
 });
