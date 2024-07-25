@@ -48,36 +48,17 @@ router.post("/", authenticateToken, async (req: Request, res: Response) => {
   const { user_id, name, nickname, is_shiny, iv, date, location } = req.body;
 
   try {
-    // Fetch user's home location
-    const userResult = await pool.query(
-      "SELECT home FROM users WHERE id = $1",
-      [user_id]
-    );
-
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    const userHome = userResult.rows[0].home;
-
-    // Ensure the location is correctly formatted
-    if (!/^SRID=4326;POINT\(-?\d+(\.\d+)? -?\d+(\.\d+)?\)$/.test(location)) {
-      return res.status(400).json({ error: "Invalid location format" });
-    }
-
-    // Calculate distance and determine if it is more than 100 km
+    // Calculate the distance from user's home location
     const distanceResult = await pool.query(
-      "SELECT ST_Distance(ST_GeogFromText($1), $2) AS distance",
-      [location, userHome]
+      "SELECT ST_Distance(ST_GeomFromText($1, 4326), home) / 1000 as distance FROM users WHERE id = $2",
+      [location, user_id]
     );
 
     const distance = distanceResult.rows[0].distance;
-    const isMoreThan100Km = distance > 100000; // 100 km in meters
 
-    // Insert the new Pokémon with the calculated distance
     const result = await pool.query(
-      "INSERT INTO pokemon (user_id, name, nickname, is_shiny, iv, date, location, distance) VALUES ($1, $2, $3, $4, $5, $6, ST_GeogFromText($7), $8) RETURNING *",
-      [user_id, name, nickname, is_shiny, iv, date, location, isMoreThan100Km]
+      "INSERT INTO pokemon (user_id, name, nickname, is_shiny, iv, date, location, distance) VALUES ($1, $2, $3, $4, $5, $6, ST_GeomFromText($7, 4326), $8) RETURNING *",
+      [user_id, name, nickname, is_shiny, iv, date, location, distance]
     );
 
     res.status(201).json(result.rows[0]);

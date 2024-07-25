@@ -44,7 +44,6 @@ function PokemonForm() {
   const [date, setDate] = useState("");
   const [position, setPosition] = useState<L.LatLng | null>(null);
   const [homePosition, setHomePosition] = useState<L.LatLng | null>(null);
-  const [distance, setDistance] = useState(false);
 
   useEffect(() => {
     const fetchUserHome = async () => {
@@ -67,6 +66,7 @@ function PokemonForm() {
           if (homeCoords) {
             const homePosition = L.latLng(homeCoords.lat, homeCoords.lng);
             setHomePosition(homePosition);
+            setPosition(homePosition); // Set initial marker at home position
           } else {
             console.error("Failed to parse home location:", data.user.home);
           }
@@ -98,7 +98,6 @@ function PokemonForm() {
       location: position
         ? `SRID=4326;POINT(${position.lng} ${position.lat})`
         : null,
-      distance,
     };
 
     try {
@@ -122,8 +121,7 @@ function PokemonForm() {
       setIsShiny(false);
       setIv("");
       setDate("");
-      setPosition(null);
-      setDistance(false);
+      setPosition(homePosition); // Reset to home position
     } catch (error) {
       alert((error as Error).message); // Explicitly type 'error' as 'Error'
     }
@@ -131,10 +129,10 @@ function PokemonForm() {
 
   const LocationMarker = () => {
     const map = useMap();
+
     useEffect(() => {
       if (homePosition) {
         map.setView(homePosition, map.getZoom());
-        setPosition(homePosition); // Set initial marker at home position
       }
     }, [homePosition, map]);
 
@@ -202,16 +200,6 @@ function PokemonForm() {
             value={date}
             onChange={(e) => setDate(e.target.value)}
             required
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          Distance:
-          <input
-            type="checkbox"
-            checked={distance}
-            onChange={(e) => setDistance(e.target.checked)}
           />
         </label>
       </div>

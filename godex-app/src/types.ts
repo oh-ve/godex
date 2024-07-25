@@ -14,5 +14,5 @@ export interface UserPokemon {
   iv: number;
   date: string;
   location: string;
-  distance: boolean;
+  distance: string;
 }
