@@ -61,6 +61,33 @@ app.post("/api/login", async (req: Request, res: Response) => {
   }
 });
 
+app.post(
+  "/api/update-home",
+  authenticateToken,
+  async (req: Request, res: Response) => {
+    const { home } = req.body;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID not found" });
+    }
+
+    try {
+      const result = await pool.query(
+        "UPDATE users SET home = ST_GeogFromText($1) WHERE id = $2 RETURNING *",
+        [home, userId]
+      );
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      res.json(result.rows[0]);
+    } catch (err: any) {
+      console.error("Error executing query:", err.stack);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+);
+
 app.get("/api/protected", authenticateToken, (req: Request, res: Response) => {
   res.json({ message: "This is a protected route", user: req.user });
 });
