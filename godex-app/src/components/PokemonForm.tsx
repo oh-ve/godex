@@ -43,11 +43,9 @@ function PokemonForm() {
     const payload = {
       user_id: decodedToken.id,
       name,
-      nickname,
       is_shiny: isShiny,
       iv: typeof iv === "string" ? parseFloat(iv) : iv,
       date,
-      location,
       distance,
     };
 
@@ -141,7 +139,6 @@ function PokemonForm() {
             type="text"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            required
           />
         </label>
       </div>
