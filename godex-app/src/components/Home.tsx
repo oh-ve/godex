@@ -4,8 +4,10 @@ import type { Pokemon } from "../types";
 
 const Home: React.FC = () => {
   const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
+  const [filteredPokemonList, setFilteredPokemonList] = useState<Pokemon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,6 +48,7 @@ const Home: React.FC = () => {
         );
 
         setPokemonList(detailedPokemonList);
+        setFilteredPokemonList(detailedPokemonList); // Initialize filtered list
         setLoading(false);
       } catch (err) {
         setError((err as Error).message);
@@ -55,6 +58,18 @@ const Home: React.FC = () => {
 
     fetchPokemonList();
   }, [navigate]);
+
+  useEffect(() => {
+    // Filter the Pokémon list based on the search query
+    const filteredList = pokemonList.filter((pokemon) =>
+      pokemon.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredPokemonList(filteredList);
+  }, [searchQuery, pokemonList]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
 
   if (loading) {
     return <p>Loading...</p>;
@@ -67,7 +82,14 @@ const Home: React.FC = () => {
   return (
     <div className="pokelist">
       <h1>Complete Pokémon List</h1>
-      {pokemonList.map((pokemon) => (
+      <input
+        type="text"
+        placeholder="Search Pokémon"
+        value={searchQuery}
+        onChange={handleSearchChange}
+        style={{ marginBottom: "20px" }}
+      />
+      {filteredPokemonList.map((pokemon) => (
         <div key={pokemon.id} className="pokemon-card">
           <Link to={`/pokemon/${pokemon.name}`}>
             <img src={pokemon.sprite} alt={pokemon.name} />
