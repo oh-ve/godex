@@ -66,14 +66,39 @@ app.post("/api/update-home", auth_1.authenticateToken, (req, res) => __awaiter(v
         return res.status(400).json({ error: "User ID not found" });
     }
     try {
-        const result = yield pool.query("UPDATE users SET home = ST_GeogFromText($1) WHERE id = $2 RETURNING *", [home, userId]);
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: "User not found" });
+        const client = yield pool.connect();
+        try {
+            yield client.query("BEGIN");
+            console.log("Received home:", home); // Debugging log
+            // Adjusted regex pattern
+            const match = home.match(/POINT\(([-.\d]+) ([-.\d]+)\)/);
+            if (!match) {
+                throw new Error("Invalid location format");
+            }
+            const [_, lon, lat] = match;
+            console.log("Parsed coordinates:", lon, lat); // Debugging log
+            // Update the user's home location
+            yield client.query("UPDATE users SET home = ST_SetSRID(ST_Point($1, $2), 4326)::geography WHERE id = $3", [lon, lat, userId]);
+            // Recalculate distances for all Pokémon of this user using ST_Distance
+            yield client.query(`UPDATE pokemon
+           SET distance = ST_Distance(location::geography, ST_SetSRID(ST_Point($1, $2), 4326)::geography) / 1000
+           WHERE user_id = $3`, [lon, lat, userId]);
+            yield client.query("COMMIT");
+            res.json({
+                message: "Home location updated and distances recalculated successfully!",
+            });
         }
-        res.json(result.rows[0]);
+        catch (err) {
+            yield client.query("ROLLBACK");
+            console.error("Error executing query:", err.stack);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+        finally {
+            client.release();
+        }
     }
     catch (err) {
-        console.error("Error executing query:", err.stack);
+        console.error("Error connecting to database:", err.stack);
         res.status(500).json({ error: "Internal Server Error" });
     }
 }));

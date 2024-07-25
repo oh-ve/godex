@@ -19,6 +19,7 @@ const markerIcon = new L.Icon({
 const UserDetails: React.FC = () => {
   const [position, setPosition] = useState<L.LatLng | null>(null);
   const [username, setUsername] = useState<string | null>(null);
+  const [homePosition, setHomePosition] = useState<L.LatLng | null>(null);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -40,6 +41,7 @@ const UserDetails: React.FC = () => {
           console.log("Raw home data:", data.user.home);
           const homeCoords = parseLocation(data.user.home);
           if (homeCoords) {
+            setHomePosition(L.latLng(homeCoords.lat, homeCoords.lng));
             setPosition(L.latLng(homeCoords.lat, homeCoords.lng));
           } else {
             console.error("Failed to parse home location:", data.user.home);
@@ -52,17 +54,9 @@ const UserDetails: React.FC = () => {
   }, []);
 
   const LocationMarker = () => {
-    const map = useMap();
-    useEffect(() => {
-      if (position) {
-        map.setView(position, map.getZoom());
-      }
-    }, [position, map]);
-
     useMapEvents({
       click(e) {
         setPosition(e.latlng);
-        map.flyTo(e.latlng, map.getZoom());
       },
     });
 
@@ -91,7 +85,7 @@ const UserDetails: React.FC = () => {
       });
 
       if (response.ok) {
-        alert("Home location updated successfully!");
+        alert("Home location changed!");
       } else {
         alert("Failed to update home location.");
       }
@@ -105,17 +99,19 @@ const UserDetails: React.FC = () => {
       <h2>User Details</h2>
       {username && <p>Username: {username}</p>}
       <h2>Update Home Location</h2>
-      <MapContainer
-        center={position || [51.505, -0.09]}
-        zoom={13}
-        style={{ height: "400px", width: "100%" }}
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        <LocationMarker />
-      </MapContainer>
+      {homePosition && (
+        <MapContainer
+          center={homePosition}
+          zoom={13}
+          style={{ height: "400px", width: "100%" }}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          <LocationMarker />
+        </MapContainer>
+      )}
       <button onClick={handleSubmit}>Update Home Location</button>
     </div>
   );
