@@ -81,7 +81,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="pokelist">
-      <h1>Complete Pokémon List</h1>
+      <h1>All Pokémon</h1>
       <input
         type="text"
         placeholder="Search Pokémon"

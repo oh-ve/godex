@@ -31,9 +31,10 @@ router.get("/", authenticateToken, async (req: Request, res: Response) => {
 router.get("/:id", authenticateToken, async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const result = await pool.query("SELECT * FROM pokemon WHERE id = $1", [
-      id,
-    ]);
+    const result = await pool.query(
+      "SELECT id, user_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance FROM pokemon WHERE id = $1",
+      [id]
+    );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Pokémon not found" });
     }
@@ -70,18 +71,50 @@ router.post("/", authenticateToken, async (req: Request, res: Response) => {
 
 router.put("/:id", authenticateToken, async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, nickname, is_shiny, iv, date, location, distance } = req.body;
+  const { name, nickname, is_shiny, iv, date, location } = req.body;
   try {
-    const result = await pool.query(
-      "UPDATE pokemon SET name = $1, nickname = $2, is_shiny = $3, iv = $4, date = $5, location = ST_GeogFromText($6), distance = $7 WHERE id = $8 RETURNING *",
-      [name, nickname, is_shiny, iv, date, location, distance, id]
-    );
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Pokémon not found" });
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+
+      // Update the Pokémon details including the location
+      const updateResult = await client.query(
+        "UPDATE pokemon SET name = $1, nickname = $2, is_shiny = $3, iv = $4, date = $5, location = ST_GeomFromText($6, 4326) WHERE id = $7 RETURNING *",
+        [name, nickname, is_shiny, iv, date, location, id]
+      );
+
+      if (updateResult.rows.length === 0) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ error: "Pokémon not found" });
+      }
+
+      const pokemon = updateResult.rows[0];
+
+      // Recalculate the distance from the user's home location
+      const distanceResult = await client.query(
+        "SELECT ST_Distance(ST_GeomFromText($1, 4326)::geography, home::geography) / 1000 as distance FROM users WHERE id = $2",
+        [location, pokemon.user_id]
+      );
+
+      const distance = distanceResult.rows[0].distance;
+
+      // Update the distance in the Pokémon record
+      await client.query("UPDATE pokemon SET distance = $1 WHERE id = $2", [
+        distance,
+        id,
+      ]);
+
+      await client.query("COMMIT");
+      res.json(updateResult.rows[0]);
+    } catch (err) {
+      await client.query("ROLLBACK");
+      console.error("Error executing query:", (err as Error).stack);
+      res.status(500).json({ error: "Internal Server Error" });
+    } finally {
+      client.release();
     }
-    res.json(result.rows[0]);
-  } catch (err: any) {
-    console.error("Error executing query:", err.stack);
+  } catch (err) {
+    console.error("Error connecting to database:", (err as Error).stack);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

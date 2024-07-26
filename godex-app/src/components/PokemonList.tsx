@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { UserPokemon } from "../types";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import { parseLocation } from "../utils";
@@ -22,6 +22,7 @@ const PokemonList: React.FC = () => {
     key: keyof UserPokemon;
     direction: "asc" | "desc";
   } | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPokemon = async () => {
@@ -72,6 +73,32 @@ const PokemonList: React.FC = () => {
     });
 
     setPokemonList(sortedData);
+  };
+
+  const handleDelete = async (id: number) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You need to be logged in to delete a Pokémon.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/pokemon/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete Pokémon");
+      }
+
+      setPokemonList(pokemonList.filter((pokemon) => pokemon.id !== id));
+      alert("Pokémon deleted successfully!");
+    } catch (error) {
+      alert((error as Error).message);
+    }
   };
 
   if (loading) {
@@ -129,6 +156,7 @@ const PokemonList: React.FC = () => {
                 : ""}
             </th>
             <th>Location</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -159,6 +187,16 @@ const PokemonList: React.FC = () => {
                       ></Marker>
                     </MapContainer>
                   )}
+                </td>
+                <td>
+                  <button
+                    onClick={() => navigate(`/edit-pokemon/${pokemon.id}`)}
+                  >
+                    Edit
+                  </button>
+                  <button onClick={() => handleDelete(pokemon.id)}>
+                    Delete
+                  </button>
                 </td>
               </tr>
             );

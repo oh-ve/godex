@@ -35,9 +35,7 @@ router.get("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0
 router.get("/:id", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {
-        const result = yield pool.query("SELECT * FROM pokemon WHERE id = $1", [
-            id,
-        ]);
+        const result = yield pool.query("SELECT id, user_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance FROM pokemon WHERE id = $1", [id]);
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "Pokémon not found" });
         }
@@ -64,16 +62,40 @@ router.post("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 
 }));
 router.put("/:id", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const { name, nickname, is_shiny, iv, date, location, distance } = req.body;
+    const { name, nickname, is_shiny, iv, date, location } = req.body;
     try {
-        const result = yield pool.query("UPDATE pokemon SET name = $1, nickname = $2, is_shiny = $3, iv = $4, date = $5, location = ST_GeogFromText($6), distance = $7 WHERE id = $8 RETURNING *", [name, nickname, is_shiny, iv, date, location, distance, id]);
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: "Pokémon not found" });
+        const client = yield pool.connect();
+        try {
+            yield client.query("BEGIN");
+            // Update the Pokémon details including the location
+            const updateResult = yield client.query("UPDATE pokemon SET name = $1, nickname = $2, is_shiny = $3, iv = $4, date = $5, location = ST_GeomFromText($6, 4326) WHERE id = $7 RETURNING *", [name, nickname, is_shiny, iv, date, location, id]);
+            if (updateResult.rows.length === 0) {
+                yield client.query("ROLLBACK");
+                return res.status(404).json({ error: "Pokémon not found" });
+            }
+            const pokemon = updateResult.rows[0];
+            // Recalculate the distance from the user's home location
+            const distanceResult = yield client.query("SELECT ST_Distance(ST_GeomFromText($1, 4326)::geography, home::geography) / 1000 as distance FROM users WHERE id = $2", [location, pokemon.user_id]);
+            const distance = distanceResult.rows[0].distance;
+            // Update the distance in the Pokémon record
+            yield client.query("UPDATE pokemon SET distance = $1 WHERE id = $2", [
+                distance,
+                id,
+            ]);
+            yield client.query("COMMIT");
+            res.json(updateResult.rows[0]);
         }
-        res.json(result.rows[0]);
+        catch (err) {
+            yield client.query("ROLLBACK");
+            console.error("Error executing query:", err.stack);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+        finally {
+            client.release();
+        }
     }
     catch (err) {
-        console.error("Error executing query:", err.stack);
+        console.error("Error connecting to database:", err.stack);
         res.status(500).json({ error: "Internal Server Error" });
     }
 }));
