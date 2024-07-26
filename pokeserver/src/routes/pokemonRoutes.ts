@@ -15,10 +15,10 @@ router.get("/", authenticateToken, async (req: Request, res: Response) => {
       return res.status(400).json({ error: "User ID not found" });
     }
 
-    console.log("Fetching Pokémon for user ID:", userId); // Add this log
+    console.log("Fetching Pokémon for user ID:", userId);
 
     const result = await pool.query(
-      "SELECT id, user_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance FROM pokemon WHERE user_id = $1",
+      "SELECT id, user_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance, account FROM pokemon WHERE user_id = $1",
       [userId]
     );
     res.json(result.rows);
@@ -32,7 +32,7 @@ router.get("/:id", authenticateToken, async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const result = await pool.query(
-      "SELECT id, user_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance FROM pokemon WHERE id = $1",
+      "SELECT id, user_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance, account FROM pokemon WHERE id = $1",
       [id]
     );
     if (result.rows.length === 0) {
@@ -46,7 +46,8 @@ router.get("/:id", authenticateToken, async (req: Request, res: Response) => {
 });
 
 router.post("/", authenticateToken, async (req: Request, res: Response) => {
-  const { user_id, name, nickname, is_shiny, iv, date, location } = req.body;
+  const { user_id, name, nickname, is_shiny, iv, date, location, account } =
+    req.body;
 
   try {
     // Calculate the distance from user's home location
@@ -55,11 +56,11 @@ router.post("/", authenticateToken, async (req: Request, res: Response) => {
       [location, user_id]
     );
 
-    const distance = distanceResult.rows[0].distance;
+    const distance = distanceResult.rows[0]?.distance || 0;
 
     const result = await pool.query(
-      "INSERT INTO pokemon (user_id, name, nickname, is_shiny, iv, date, location, distance) VALUES ($1, $2, $3, $4, $5, $6, ST_GeomFromText($7, 4326), $8) RETURNING *",
-      [user_id, name, nickname, is_shiny, iv, date, location, distance]
+      "INSERT INTO pokemon (user_id, name, nickname, is_shiny, iv, date, location, distance, account) VALUES ($1, $2, $3, $4, $5, $6, ST_GeomFromText($7, 4326), $8, $9) RETURNING *",
+      [user_id, name, nickname, is_shiny, iv, date, location, distance, account]
     );
 
     res.status(201).json(result.rows[0]);
@@ -71,7 +72,7 @@ router.post("/", authenticateToken, async (req: Request, res: Response) => {
 
 router.put("/:id", authenticateToken, async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, nickname, is_shiny, iv, date, location } = req.body;
+  const { name, nickname, is_shiny, iv, date, location, account } = req.body;
   try {
     const client = await pool.connect();
     try {
@@ -79,8 +80,8 @@ router.put("/:id", authenticateToken, async (req: Request, res: Response) => {
 
       // Update the Pokémon details including the location
       const updateResult = await client.query(
-        "UPDATE pokemon SET name = $1, nickname = $2, is_shiny = $3, iv = $4, date = $5, location = ST_GeomFromText($6, 4326) WHERE id = $7 RETURNING *",
-        [name, nickname, is_shiny, iv, date, location, id]
+        "UPDATE pokemon SET name = $1, nickname = $2, is_shiny = $3, iv = $4, date = $5, location = ST_GeomFromText($6, 4326), account = $7 WHERE id = $8 RETURNING *",
+        [name, nickname, is_shiny, iv, date, location, account, id]
       );
 
       if (updateResult.rows.length === 0) {
@@ -96,7 +97,7 @@ router.put("/:id", authenticateToken, async (req: Request, res: Response) => {
         [location, pokemon.user_id]
       );
 
-      const distance = distanceResult.rows[0].distance;
+      const distance = distanceResult.rows[0]?.distance || 0;
 
       // Update the distance in the Pokémon record
       await client.query("UPDATE pokemon SET distance = $1 WHERE id = $2", [
