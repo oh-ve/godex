@@ -155,6 +155,14 @@ const PokemonList: React.FC = () => {
                   : "↓"
                 : ""}
             </th>
+            <th onClick={() => sortData("date")}>
+              Year
+              {sortConfig?.key === "date"
+                ? sortConfig.direction === "asc"
+                  ? "↑"
+                  : "↓"
+                : ""}
+            </th>
             <th>Location</th>
             <th>Actions</th>
           </tr>
@@ -163,6 +171,7 @@ const PokemonList: React.FC = () => {
           {pokemonList.map((pokemon) => {
             const location = parseLocation(pokemon.location);
             const distance = parseFloat(pokemon.distance);
+            const year = new Date(pokemon.date).getFullYear();
             return (
               <tr key={pokemon.id}>
                 <td>{pokemon.name}</td>
@@ -170,6 +179,7 @@ const PokemonList: React.FC = () => {
                 <td>{pokemon.iv}</td>
                 <td>{pokemon.is_shiny ? "Yes" : "No"}</td>
                 <td>{distance ? distance.toFixed(2) : "N/A"}</td>
+                <td>{year}</td> {/* Display the year */}
                 <td>
                   {location && (
                     <MapContainer
