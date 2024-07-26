@@ -24,7 +24,7 @@ router.get("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0
             return res.status(400).json({ error: "User ID not found" });
         }
         console.log("Fetching Pokémon for user ID:", userId);
-        const result = yield pool.query("SELECT id, user_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance, account FROM pokemon WHERE user_id = $1", [userId]);
+        const result = yield pool.query("SELECT id, user_id, account_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance FROM pokemon WHERE user_id = $1", [userId]);
         res.json(result.rows);
     }
     catch (err) {
@@ -35,7 +35,7 @@ router.get("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0
 router.get("/:id", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {
-        const result = yield pool.query("SELECT id, user_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance, account FROM pokemon WHERE id = $1", [id]);
+        const result = yield pool.query("SELECT id, user_id, account_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance FROM pokemon WHERE id = $1", [id]);
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "Pokémon not found" });
         }
@@ -48,12 +48,22 @@ router.get("/:id", auth_1.authenticateToken, (req, res) => __awaiter(void 0, voi
 }));
 router.post("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const { user_id, name, nickname, is_shiny, iv, date, location, account } = req.body;
+    const { user_id, account_id, name, nickname, is_shiny, iv, date, location } = req.body;
     try {
         // Calculate the distance from user's home location
         const distanceResult = yield pool.query("SELECT ST_Distance(ST_GeomFromText($1, 4326), home) / 1000 as distance FROM users WHERE id = $2", [location, user_id]);
         const distance = ((_a = distanceResult.rows[0]) === null || _a === void 0 ? void 0 : _a.distance) || 0;
-        const result = yield pool.query("INSERT INTO pokemon (user_id, name, nickname, is_shiny, iv, date, location, distance, account) VALUES ($1, $2, $3, $4, $5, $6, ST_GeomFromText($7, 4326), $8, $9) RETURNING *", [user_id, name, nickname, is_shiny, iv, date, location, distance, account]);
+        const result = yield pool.query("INSERT INTO pokemon (user_id, account_id, name, nickname, is_shiny, iv, date, location, distance) VALUES ($1, $2, $3, $4, $5, $6, ST_GeomFromText($7, 4326), $8) RETURNING *", [
+            user_id,
+            account_id,
+            name,
+            nickname,
+            is_shiny,
+            iv,
+            date,
+            location,
+            distance,
+        ]);
         res.status(201).json(result.rows[0]);
     }
     catch (err) {
@@ -64,13 +74,13 @@ router.post("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 
 router.put("/:id", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { id } = req.params;
-    const { name, nickname, is_shiny, iv, date, location, account } = req.body;
+    const { name, nickname, is_shiny, iv, date, location, account_id } = req.body;
     try {
         const client = yield pool.connect();
         try {
             yield client.query("BEGIN");
-            // Update the Pokémon details including the location
-            const updateResult = yield client.query("UPDATE pokemon SET name = $1, nickname = $2, is_shiny = $3, iv = $4, date = $5, location = ST_GeomFromText($6, 4326), account = $7 WHERE id = $8 RETURNING *", [name, nickname, is_shiny, iv, date, location, account, id]);
+            // Update the Pokémon details including the location and account
+            const updateResult = yield client.query("UPDATE pokemon SET name = $1, nickname = $2, is_shiny = $3, iv = $4, date = $5, location = ST_GeomFromText($6, 4326), account_id = $7 WHERE id = $8 RETURNING *", [name, nickname, is_shiny, iv, date, location, account_id, id]);
             if (updateResult.rows.length === 0) {
                 yield client.query("ROLLBACK");
                 return res.status(404).json({ error: "Pokémon not found" });
