@@ -5,7 +5,7 @@ import Home from "./components/Home";
 import PokemonForm from "./components/PokemonForm";
 import PokemonEditForm from "./components/PokemonEditForm";
 import PokemonList from "./components/PokemonList";
-import { UserPokemon } from "./types";
+import UserDetails from "./components/UserDetails";
 
 function App() {
   return (
@@ -16,6 +16,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Home />} />
+          <Route path="/user-details" element={<UserDetails />} />
           <Route path="/add-pokemon" element={<PokemonForm />} />
           <Route path="/edit-pokemon/:id" element={<PokemonEditForm />} />
           <Route path="/pokemon/:name" element={<PokemonList />} />
