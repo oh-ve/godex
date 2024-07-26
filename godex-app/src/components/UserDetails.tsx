@@ -1,11 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  useMap,
-  useMapEvents,
-} from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { parseLocation } from "../utils";
@@ -20,6 +14,8 @@ const UserDetails: React.FC = () => {
   const [position, setPosition] = useState<L.LatLng | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [homePosition, setHomePosition] = useState<L.LatLng | null>(null);
+  const [accounts, setAccounts] = useState<string[]>([]);
+  const [newAccount, setNewAccount] = useState<string>("");
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -50,7 +46,26 @@ const UserDetails: React.FC = () => {
       }
     };
 
+    const fetchUserAccounts = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        return;
+      }
+
+      const response = await fetch("http://localhost:8080/api/accounts", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAccounts(data.map((account: any) => account.account_name));
+      }
+    };
+
     fetchUserDetails();
+    fetchUserAccounts();
   }, []);
 
   const LocationMarker = () => {
@@ -94,6 +109,32 @@ const UserDetails: React.FC = () => {
     }
   };
 
+  const handleAddAccount = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You need to be logged in to add an account");
+      return;
+    }
+
+    const response = await fetch("http://localhost:8080/api/accounts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        account_name: newAccount,
+      }),
+    });
+
+    if (response.ok) {
+      setAccounts([...accounts, newAccount]);
+      setNewAccount("");
+    } else {
+      alert("Failed to add new account.");
+    }
+  };
+
   return (
     <div>
       <h2>User Details</h2>
@@ -113,6 +154,19 @@ const UserDetails: React.FC = () => {
         </MapContainer>
       )}
       <button onClick={handleSubmit}>Update Home Location</button>
+      <h2>Accounts</h2>
+      <ul>
+        {accounts.map((account, index) => (
+          <li key={index}>{account}</li>
+        ))}
+      </ul>
+      <input
+        type="text"
+        value={newAccount}
+        onChange={(e) => setNewAccount(e.target.value)}
+        placeholder="New Account"
+      />
+      <button onClick={handleAddAccount}>Add Account</button>
     </div>
   );
 };

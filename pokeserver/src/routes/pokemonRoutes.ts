@@ -50,7 +50,6 @@ router.post("/", authenticateToken, async (req: Request, res: Response) => {
     req.body;
 
   try {
-    // Calculate the distance from user's home location
     const distanceResult = await pool.query(
       "SELECT ST_Distance(ST_GeomFromText($1, 4326), home) / 1000 as distance FROM users WHERE id = $2",
       [location, user_id]
@@ -59,7 +58,7 @@ router.post("/", authenticateToken, async (req: Request, res: Response) => {
     const distance = distanceResult.rows[0]?.distance || 0;
 
     const result = await pool.query(
-      "INSERT INTO pokemon (user_id, account_id, name, nickname, is_shiny, iv, date, location, distance) VALUES ($1, $2, $3, $4, $5, $6, ST_GeomFromText($7, 4326), $8) RETURNING *",
+      "INSERT INTO pokemon (user_id, account_id, name, nickname, is_shiny, iv, date, location, distance) VALUES ($1, $2, $3, $4, $5, $6, $7, ST_GeomFromText($8, 4326), $9) RETURNING *",
       [
         user_id,
         account_id,

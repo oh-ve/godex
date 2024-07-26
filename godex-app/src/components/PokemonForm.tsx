@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  useMap,
-  useMapEvents,
-} from "react-leaflet";
+import { useNavigate } from "react-router-dom";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { parseLocation } from "../utils";
@@ -37,6 +32,7 @@ function decodeJWT(token: string): DecodedToken {
 }
 
 function PokemonForm() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [nickname, setNickname] = useState("");
   const [isShiny, setIsShiny] = useState(false);
@@ -44,6 +40,10 @@ function PokemonForm() {
   const [date, setDate] = useState("");
   const [position, setPosition] = useState<L.LatLng | null>(null);
   const [homePosition, setHomePosition] = useState<L.LatLng | null>(null);
+  const [accounts, setAccounts] = useState<
+    { id: number; account_name: string }[]
+  >([]);
+  const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchUserHome = async () => {
@@ -74,7 +74,26 @@ function PokemonForm() {
       }
     };
 
+    const fetchUserAccounts = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        return;
+      }
+
+      const response = await fetch("http://localhost:8080/api/accounts", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAccounts(data);
+      }
+    };
+
     fetchUserHome();
+    fetchUserAccounts();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,10 +105,16 @@ function PokemonForm() {
       return;
     }
 
+    if (!selectedAccount) {
+      alert("Please select an account.");
+      return;
+    }
+
     const decodedToken = decodeJWT(token);
 
     const payload = {
       user_id: decodedToken.id,
+      account_id: selectedAccount, // Posting as account ID
       name,
       nickname,
       is_shiny: isShiny,
@@ -115,6 +140,8 @@ function PokemonForm() {
       }
 
       alert("Pokémon added successfully!");
+      navigate(`/pokemon/${name}`); // Redirect to Pokémon list page
+
       // Optionally reset the form
       setName("");
       setNickname("");
@@ -122,6 +149,7 @@ function PokemonForm() {
       setIv("");
       setDate("");
       setPosition(homePosition); // Reset to home position
+      setSelectedAccount(null);
     } catch (error) {
       alert((error as Error).message); // Explicitly type 'error' as 'Error'
     }
@@ -192,6 +220,25 @@ function PokemonForm() {
             onChange={(e) => setDate(e.target.value)}
             required
           />
+        </label>
+      </div>
+      <div>
+        <label>
+          Account:
+          <select
+            value={selectedAccount ?? ""}
+            onChange={(e) => setSelectedAccount(Number(e.target.value))}
+            required
+          >
+            <option value="" disabled>
+              Select an account
+            </option>
+            {accounts.map((account) => (
+              <option key={account.id} value={account.id}>
+                {account.account_name}
+              </option>
+            ))}
+          </select>
         </label>
       </div>
       <div>
