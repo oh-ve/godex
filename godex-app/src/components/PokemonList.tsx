@@ -178,7 +178,7 @@ const PokemonList: React.FC = () => {
                 <td>{pokemon.nickname}</td>
                 <td>{pokemon.iv}</td>
                 <td>{pokemon.is_shiny ? "Yes" : "No"}</td>
-                <td>{distance ? distance.toFixed(2) : "N/A"}</td>
+                <td>{distance ? distance.toFixed(2) : "0"}</td>
                 <td>{year}</td> {/* Display the year */}
                 <td>
                   {location && (

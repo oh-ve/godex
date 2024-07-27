@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { parseLocation } from "../utils";
+import { parseLocation, capitalize } from "../utils";
 
 const markerIcon = new L.Icon({
   iconUrl: require("leaflet/dist/images/marker-icon.png"),
@@ -14,6 +14,10 @@ const markerIcon = new L.Icon({
 interface DecodedToken {
   id: number;
   username: string;
+}
+
+interface PokemonFormProps {
+  allPokemonNames: string[];
 }
 
 function decodeJWT(token: string): DecodedToken {
@@ -31,7 +35,7 @@ function decodeJWT(token: string): DecodedToken {
   return JSON.parse(jsonPayload);
 }
 
-function PokemonForm() {
+function PokemonForm({ allPokemonNames }: PokemonFormProps) {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [nickname, setNickname] = useState("");
@@ -44,6 +48,9 @@ function PokemonForm() {
     { id: number; account_name: string }[]
   >([]);
   const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
+  const [filteredPokemonNames, setFilteredPokemonNames] = useState<string[]>(
+    []
+  );
 
   useEffect(() => {
     const fetchUserHome = async () => {
@@ -122,7 +129,9 @@ function PokemonForm() {
       date,
       location: position
         ? `SRID=4326;POINT(${position.lng} ${position.lat})`
-        : null,
+        : homePosition
+        ? `SRID=4326;POINT(${homePosition.lng} ${homePosition.lat})`
+        : null, // Use homePosition if no position is set, otherwise null
     };
 
     try {
@@ -155,6 +164,28 @@ function PokemonForm() {
     }
   };
 
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setName(value);
+
+    // Filter the Pokémon names based on the input and limit to 3 suggestions
+    if (value) {
+      const filtered = allPokemonNames
+        .filter((pokemonName) =>
+          pokemonName.toLowerCase().includes(value.toLowerCase())
+        )
+        .slice(0, 3);
+      setFilteredPokemonNames(filtered);
+    } else {
+      setFilteredPokemonNames([]);
+    }
+  };
+
+  const handlePokemonSelect = (name: string) => {
+    setName(name);
+    setFilteredPokemonNames([]);
+  };
+
   const LocationMarker = () => {
     useMapEvents({
       click(e) {
@@ -175,9 +206,22 @@ function PokemonForm() {
           <input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={handleNameChange}
             required
           />
+          {filteredPokemonNames.length > 0 && (
+            <ul style={{ listStyleType: "none", padding: 0 }}>
+              {filteredPokemonNames.map((pokemonName) => (
+                <li
+                  key={pokemonName}
+                  onClick={() => handlePokemonSelect(capitalize(pokemonName))}
+                  style={{ cursor: "pointer" }}
+                >
+                  {capitalize(pokemonName)}
+                </li>
+              ))}
+            </ul>
+          )}
         </label>
       </div>
       <div>
