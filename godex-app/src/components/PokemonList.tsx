@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { UserPokemon } from "../types";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import { parseLocation } from "../utils";
 import { capitalize } from "../utils";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { useLocation } from "react-router-dom";
 
 const markerIcon = new L.Icon({
   iconUrl: require("leaflet/dist/images/marker-icon.png"),
@@ -26,6 +25,13 @@ const PokemonList: React.FC = () => {
     key: keyof UserPokemon;
     direction: "asc" | "desc";
   } | null>(null);
+  const [filters, setFilters] = useState({
+    shiny: false,
+    notShiny: false,
+    iv100: false,
+    ivLessThan100: false,
+    ivLessThan96: false,
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -108,6 +114,23 @@ const PokemonList: React.FC = () => {
     }
   };
 
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setFilters((prevFilters) => ({ ...prevFilters, [name]: checked }));
+  };
+
+  const applyFilters = (pokemon: UserPokemon) => {
+    const ivString = String(pokemon.iv); // Ensure iv is treated as a string
+    if (filters.shiny && !pokemon.is_shiny) return false;
+    if (filters.notShiny && pokemon.is_shiny) return false;
+    if (filters.iv100 && parseFloat(ivString) !== 100) return false;
+    if (filters.ivLessThan100 && parseFloat(ivString) >= 100) return false;
+    if (filters.ivLessThan96 && parseFloat(ivString) >= 96) return false;
+    return true;
+  };
+
+  const filteredPokemonList = pokemonList.filter(applyFilters);
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -119,6 +142,53 @@ const PokemonList: React.FC = () => {
   return (
     <div>
       <h1>{name ? capitalize(name) : ""}</h1>
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            name="shiny"
+            checked={filters.shiny}
+            onChange={handleFilterChange}
+          />
+          Shiny
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            name="notShiny"
+            checked={filters.notShiny}
+            onChange={handleFilterChange}
+          />
+          Not shiny
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            name="iv100"
+            checked={filters.iv100}
+            onChange={handleFilterChange}
+          />
+          IV 100
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            name="ivLessThan100"
+            checked={filters.ivLessThan100}
+            onChange={handleFilterChange}
+          />
+          IV {"<"} 100
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            name="ivLessThan96"
+            checked={filters.ivLessThan96}
+            onChange={handleFilterChange}
+          />
+          IV {"<"} 96
+        </label>
+      </div>
       <table>
         <thead>
           <tr>
@@ -171,10 +241,11 @@ const PokemonList: React.FC = () => {
                 : ""}
             </th>
             <th>Location</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {pokemonList.map((pokemon) => {
+          {filteredPokemonList.map((pokemon) => {
             const location = parseLocation(pokemon.location);
             const distance = parseFloat(pokemon.distance);
             const year = new Date(pokemon.date).getFullYear();
@@ -185,7 +256,7 @@ const PokemonList: React.FC = () => {
                 <td>{pokemon.iv}</td>
                 <td>{pokemon.is_shiny ? "Yes" : "No"}</td>
                 <td>{distance ? distance.toFixed(2) : "0"}</td>
-                <td>{year}</td> {/* Display the year */}
+                <td>{year}</td>
                 <td>
                   {location && (
                     <MapContainer
