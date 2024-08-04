@@ -52,7 +52,10 @@ router.get("/:id", auth_1.authenticateToken, (req, res) => __awaiter(void 0, voi
 router.get("/account/:accountId", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { accountId } = req.params;
     try {
-        const result = yield pool.query("SELECT id, user_id, account_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance FROM pokemon WHERE account_id = $1", [accountId]);
+        const result = yield pool.query(`SELECT p.id, p.user_id, p.account_id, p.name, p.nickname, p.is_shiny, p.iv, p.date, ST_AsText(p.location) as location, p.distance, a.account_name
+         FROM pokemon p
+         JOIN accounts a ON p.account_id = a.id
+         WHERE p.account_id = $1`, [accountId]);
         res.json(result.rows);
     }
     catch (err) {

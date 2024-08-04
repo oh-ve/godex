@@ -55,3 +55,32 @@
 .pokelist table td a:hover {
   color: #007bff;
 }
+
+/* Styles.css */
+
+.sidebar {
+  width: 300px;
+  padding: 20px;
+  background-color: #f4f4f4;
+  border-left: 1px solid #ddd;
+  height: 100vh;
+  position: fixed;
+  right: 0;
+  top: 0;
+  overflow-y: auto; /* Ensures content is scrollable */
+}
+
+.selected-pokemon {
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.selected-pokemon button {
+  display: block;
+  margin-top: 10px;
+}
+
+.selected {
+  background-color: #e0f7fa; /* Highlight selected Pokémon */
+}

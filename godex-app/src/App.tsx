@@ -12,6 +12,8 @@ import PokemonForm from "./components/PokemonForm";
 import PokemonEditForm from "./components/PokemonEditForm";
 import PokemonList from "./components/PokemonList";
 import UserDetails from "./components/UserDetails";
+import Sidebar from "./components/Sidebar";
+import { SelectedPokemonProvider } from "./components/context/SelectedPokemonContext";
 import type { Pokemon } from "./types";
 
 function App() {
@@ -72,26 +74,37 @@ function App() {
   const allPokemonNames = pokemonList.map((pokemon) => pokemon.name);
 
   return (
-    <div>
+    <SelectedPokemonProvider>
+      {" "}
+      {/* Wrap with the provider */}
       <Navbar />
       <h1>GoDex</h1>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/"
-          element={
-            <Home pokemonList={pokemonList} loading={loading} error={error} />
-          }
-        />
-        <Route path="/user-details" element={<UserDetails />} />
-        <Route
-          path="/add-pokemon"
-          element={<PokemonForm allPokemonNames={allPokemonNames} />}
-        />
-        <Route path="/edit-pokemon/:id" element={<PokemonEditForm />} />
-        <Route path="/pokemon/:name" element={<PokemonList />} />
-      </Routes>
-    </div>
+      <div style={{ display: "flex" }}>
+        <div style={{ flex: 1 }}>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/"
+              element={
+                <Home
+                  pokemonList={pokemonList}
+                  loading={loading}
+                  error={error}
+                />
+              }
+            />
+            <Route path="/user-details" element={<UserDetails />} />
+            <Route
+              path="/add-pokemon"
+              element={<PokemonForm allPokemonNames={allPokemonNames} />}
+            />
+            <Route path="/edit-pokemon/:id" element={<PokemonEditForm />} />
+            <Route path="/pokemon/:name" element={<PokemonList />} />
+          </Routes>
+        </div>
+        <Sidebar /> {/* Add the sidebar here */}
+      </div>
+    </SelectedPokemonProvider>
   );
 }
 

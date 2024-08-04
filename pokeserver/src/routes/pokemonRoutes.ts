@@ -55,7 +55,10 @@ router.get(
     const { accountId } = req.params;
     try {
       const result = await pool.query(
-        "SELECT id, user_id, account_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance FROM pokemon WHERE account_id = $1",
+        `SELECT p.id, p.user_id, p.account_id, p.name, p.nickname, p.is_shiny, p.iv, p.date, ST_AsText(p.location) as location, p.distance, a.account_name
+         FROM pokemon p
+         JOIN accounts a ON p.account_id = a.id
+         WHERE p.account_id = $1`,
         [accountId]
       );
       res.json(result.rows);
