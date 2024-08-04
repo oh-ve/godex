@@ -49,6 +49,17 @@ router.get("/:id", auth_1.authenticateToken, (req, res) => __awaiter(void 0, voi
         res.status(500).json({ error: "Internal Server Error" });
     }
 }));
+router.get("/account/:accountId", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { accountId } = req.params;
+    try {
+        const result = yield pool.query("SELECT id, user_id, account_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance FROM pokemon WHERE account_id = $1", [accountId]);
+        res.json(result.rows);
+    }
+    catch (err) {
+        console.error("Error executing query:", err.stack);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}));
 router.post("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { user_id, account_id, name, nickname, is_shiny, iv, date, location } = req.body;

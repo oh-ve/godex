@@ -48,6 +48,24 @@ router.get("/:id", authenticateToken, async (req: Request, res: Response) => {
   }
 });
 
+router.get(
+  "/account/:accountId",
+  authenticateToken,
+  async (req: Request, res: Response) => {
+    const { accountId } = req.params;
+    try {
+      const result = await pool.query(
+        "SELECT id, user_id, account_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance FROM pokemon WHERE account_id = $1",
+        [accountId]
+      );
+      res.json(result.rows);
+    } catch (err: any) {
+      console.error("Error executing query:", err.stack);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+);
+
 router.post("/", authenticateToken, async (req: Request, res: Response) => {
   const { user_id, account_id, name, nickname, is_shiny, iv, date, location } =
     req.body;

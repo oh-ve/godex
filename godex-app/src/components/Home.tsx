@@ -16,21 +16,7 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
   const [accounts, setAccounts] = useState<
     { id: number; account_name: string }[]
   >([]);
-
-  useEffect(() => {
-    setFilteredPokemonList(pokemonList);
-  }, [pokemonList]);
-
-  useEffect(() => {
-    const filteredList = pokemonList.filter((pokemon) =>
-      pokemon.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredPokemonList(filteredList);
-  }, [searchQuery, pokemonList]);
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
+  const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchUserAccounts = async () => {
@@ -47,10 +33,64 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
       if (response.ok) {
         const data = await response.json();
         setAccounts(data);
+        if (data.length > 0) {
+          setSelectedAccount(data[0].id);
+        }
       }
     };
     fetchUserAccounts();
   }, []);
+
+  useEffect(() => {
+    if (selectedAccount === null) {
+      setFilteredPokemonList([]);
+      return;
+    }
+
+    const fetchAccountPokemon = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        return;
+      }
+      const response = await fetch(
+        `http://localhost:8080/api/pokemon/account/${selectedAccount}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        const accountPokemonNames = new Set(
+          data.map((pokemon: any) => pokemon.name.toLowerCase())
+        );
+
+        const filteredList = pokemonList.filter((pokemon) =>
+          accountPokemonNames.has(pokemon.name.toLowerCase())
+        );
+        setFilteredPokemonList(filteredList);
+      }
+    };
+
+    fetchAccountPokemon();
+  }, [selectedAccount, pokemonList]);
+
+  useEffect(() => {
+    const filteredList = filteredPokemonList.filter((pokemon) =>
+      pokemon.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredPokemonList(filteredList);
+  }, [searchQuery]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleAccountClick = (accountId: number) => {
+    setSelectedAccount(accountId);
+  };
 
   if (loading) {
     return <p>Loading...</p>;
@@ -70,9 +110,20 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
         onChange={handleSearchChange}
         style={{ marginBottom: "20px" }}
       />
-      {accounts.map((acc) => (
-        <button>{acc.account_name}</button>
-      ))}
+      <div>
+        {accounts.map((acc) => (
+          <button
+            key={acc.id}
+            onClick={() => handleAccountClick(acc.id)}
+            style={{
+              backgroundColor:
+                acc.id === selectedAccount ? "lightblue" : "white",
+            }}
+          >
+            {acc.account_name}
+          </button>
+        ))}
+      </div>
       <table>
         <tbody>
           {filteredPokemonList.map((pokemon) => (
