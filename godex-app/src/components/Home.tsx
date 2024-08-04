@@ -17,7 +17,8 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
     { id: number; account_name: string }[]
   >([]);
   const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
-  const [accountPokemonList, setAccountPokemonList] = useState<Pokemon[]>([]);
+  const [accountPokemonList, setAccountPokemonList] = useState<any[]>([]);
+  const [filterOption, setFilterOption] = useState<string>("");
 
   useEffect(() => {
     const fetchUserAccounts = async () => {
@@ -64,15 +65,15 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
 
       if (response.ok) {
         const data = await response.json();
-        const accountPokemonNames = new Set(
-          data.map((pokemon: any) => pokemon.name.toLowerCase())
+        setAccountPokemonList(data);
+        setFilteredPokemonList(
+          pokemonList.filter((pokemon) =>
+            data.some(
+              (entry: any) =>
+                entry.name.toLowerCase() === pokemon.name.toLowerCase()
+            )
+          )
         );
-
-        const filteredList = pokemonList.filter((pokemon) =>
-          accountPokemonNames.has(pokemon.name.toLowerCase())
-        );
-        setAccountPokemonList(filteredList);
-        setFilteredPokemonList(filteredList); // Initialize the filtered list with account-specific Pokémon
       }
     };
 
@@ -80,15 +81,79 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
   }, [selectedAccount, pokemonList]);
 
   useEffect(() => {
-    if (searchQuery === "") {
-      setFilteredPokemonList(accountPokemonList);
-    } else {
-      const filteredList = accountPokemonList.filter((pokemon) =>
-        pokemon.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredPokemonList(filteredList);
+    let updatedList = accountPokemonList;
+
+    if (filterOption !== "") {
+      switch (filterOption) {
+        case "shinyYes":
+          updatedList = updatedList.filter((entry) => entry.is_shiny);
+          break;
+        case "iv100":
+          updatedList = updatedList.filter(
+            (entry) => parseFloat(entry.iv) === 100
+          );
+          break;
+        case "shinyNo":
+          updatedList = accountPokemonList.filter(
+            (pokemon) =>
+              !accountPokemonList.some(
+                (entry) =>
+                  entry.name.toLowerCase() === pokemon.name.toLowerCase() &&
+                  entry.is_shiny
+              )
+          );
+          break;
+        case "ivNot100":
+          updatedList = accountPokemonList.filter(
+            (pokemon) =>
+              !accountPokemonList.some(
+                (entry) =>
+                  entry.name.toLowerCase() === pokemon.name.toLowerCase() &&
+                  parseFloat(entry.iv) === 100
+              )
+          );
+          break;
+        case "ivRange":
+          updatedList = accountPokemonList.filter(
+            (pokemon) =>
+              accountPokemonList.some(
+                (entry) =>
+                  entry.name.toLowerCase() === pokemon.name.toLowerCase() &&
+                  parseFloat(entry.iv) >= 95.6 &&
+                  parseFloat(entry.iv) <= 99.9
+              ) &&
+              !accountPokemonList.some(
+                (entry) =>
+                  entry.name.toLowerCase() === pokemon.name.toLowerCase() &&
+                  parseFloat(entry.iv) === 100
+              )
+          );
+          break;
+        case "shundo":
+          updatedList = updatedList.filter(
+            (entry) => entry.is_shiny && parseFloat(entry.iv) === 100
+          );
+          break;
+        default:
+          break;
+      }
     }
-  }, [searchQuery, accountPokemonList]);
+
+    if (searchQuery !== "") {
+      updatedList = updatedList.filter((entry) =>
+        entry.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredPokemonList(
+      pokemonList.filter((pokemon) =>
+        updatedList.some(
+          (entry: any) =>
+            entry.name.toLowerCase() === pokemon.name.toLowerCase()
+        )
+      )
+    );
+  }, [searchQuery, accountPokemonList, filterOption, pokemonList]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -96,6 +161,10 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
 
   const handleAccountClick = (accountId: number) => {
     setSelectedAccount(accountId);
+  };
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilterOption(e.target.value);
   };
 
   if (loading) {
@@ -129,6 +198,20 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
             {acc.account_name}
           </button>
         ))}
+      </div>
+      <div>
+        <label>
+          Filter:
+          <select value={filterOption} onChange={handleFilterChange}>
+            <option value="">All</option>
+            <option value="shinyYes">Shiny</option>
+            <option value="shinyNo">No shiny</option>
+            <option value="iv100">IV 100</option>
+            <option value="ivNot100">No IV 100</option>
+            <option value="ivRange">IV 96 - 98</option>
+            <option value="shundo">Shundo</option>
+          </select>
+        </label>
       </div>
       <table>
         <tbody>
