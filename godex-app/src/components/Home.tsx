@@ -13,6 +13,9 @@ interface HomeProps {
 const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
   const [filteredPokemonList, setFilteredPokemonList] = useState<Pokemon[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [accounts, setAccounts] = useState<
+    { id: number; account_name: string }[]
+  >([]);
 
   useEffect(() => {
     setFilteredPokemonList(pokemonList);
@@ -28,6 +31,26 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
+
+  useEffect(() => {
+    const fetchUserAccounts = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        return;
+      }
+      const response = await fetch("http://localhost:8080/api/accounts", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAccounts(data);
+      }
+    };
+    fetchUserAccounts();
+  }, []);
 
   if (loading) {
     return <p>Loading...</p>;
@@ -47,8 +70,9 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
         onChange={handleSearchChange}
         style={{ marginBottom: "20px" }}
       />
-      <button>Freizeitrobin</button>
-      <button>QueenSanRosa</button>
+      {accounts.map((acc) => (
+        <button>{acc.account_name}</button>
+      ))}
       <table>
         <tbody>
           {filteredPokemonList.map((pokemon) => (
