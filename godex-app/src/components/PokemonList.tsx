@@ -164,6 +164,14 @@ const PokemonList: React.FC = () => {
                 : ""}
             </th>
             <th>Location</th>
+            <th onClick={() => sortData("account_name")}>
+              Account Name{" "}
+              {sortConfig?.key === "account_name"
+                ? sortConfig.direction === "asc"
+                  ? "↑"
+                  : "↓"
+                : ""}
+            </th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -198,6 +206,7 @@ const PokemonList: React.FC = () => {
                     </MapContainer>
                   )}
                 </td>
+                <td>{pokemon.account_name}</td> {/* Display the account name */}
                 <td>
                   <button
                     onClick={() => navigate(`/edit-pokemon/${pokemon.id}`)}

@@ -24,7 +24,10 @@ router.get("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0
             return res.status(400).json({ error: "User ID not found" });
         }
         console.log("Fetching Pokémon for user ID:", userId);
-        const result = yield pool.query("SELECT id, user_id, account_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance FROM pokemon WHERE user_id = $1", [userId]);
+        const result = yield pool.query(`SELECT p.id, p.user_id, p.account_id, p.name, p.nickname, p.is_shiny, p.iv, p.date, ST_AsText(p.location) as location, p.distance, a.account_name
+       FROM pokemon p
+       LEFT JOIN accounts a ON p.account_id = a.id
+       WHERE p.user_id = $1`, [userId]);
         res.json(result.rows);
     }
     catch (err) {

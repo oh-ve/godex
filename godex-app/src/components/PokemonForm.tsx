@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -35,13 +35,17 @@ function decodeJWT(token: string): DecodedToken {
   return JSON.parse(jsonPayload);
 }
 
+function formatDateForInput(date: Date): string {
+  return date.toISOString().slice(0, 16);
+}
+
 function PokemonForm({ allPokemonNames }: PokemonFormProps) {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [nickname, setNickname] = useState("");
   const [isShiny, setIsShiny] = useState(false);
   const [iv, setIv] = useState<number | string>("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(formatDateForInput(new Date())); // Initialize with current date and time
   const [position, setPosition] = useState<L.LatLng | null>(null);
   const [homePosition, setHomePosition] = useState<L.LatLng | null>(null);
   const [accounts, setAccounts] = useState<
@@ -156,7 +160,7 @@ function PokemonForm({ allPokemonNames }: PokemonFormProps) {
       setNickname("");
       setIsShiny(false);
       setIv("");
-      setDate("");
+      setDate(formatDateForInput(new Date())); // Reset to current date and time
       setPosition(homePosition); // Reset to home position
       setSelectedAccount(null);
     } catch (error) {

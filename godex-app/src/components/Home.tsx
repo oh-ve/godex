@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import type { Pokemon } from "../types";
+import { capitalize } from "../utils";
+import "../Styles.css";
 
 interface HomeProps {
   pokemonList: Pokemon[];
@@ -13,11 +15,10 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    setFilteredPokemonList(pokemonList); // Initialize filtered list
+    setFilteredPokemonList(pokemonList);
   }, [pokemonList]);
 
   useEffect(() => {
-    // Filter the Pokémon list based on the search query
     const filteredList = pokemonList.filter((pokemon) =>
       pokemon.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -46,15 +47,23 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
         onChange={handleSearchChange}
         style={{ marginBottom: "20px" }}
       />
-      {filteredPokemonList.map((pokemon) => (
-        <div key={pokemon.id} className="pokemon-card">
-          <Link to={`/pokemon/${pokemon.name}`}>
-            <img src={pokemon.sprite} alt={pokemon.name} />
-            <p>ID: {pokemon.id}</p>
-            <p>Name: {pokemon.name}</p>
-          </Link>
-        </div>
-      ))}
+      <button>Freizeitrobin</button>
+      <button>QueenSanRosa</button>
+      <table>
+        <tbody>
+          {filteredPokemonList.map((pokemon) => (
+            <tr key={pokemon.id} className="pokemon-row">
+              <Link to={`/pokemon/${pokemon.name}`} className="row-link">
+                <td>{pokemon.id}</td>
+                <td>
+                  <img src={pokemon.sprite} alt={pokemon.name} />
+                </td>
+                <td>{capitalize(pokemon.name)}</td>
+              </Link>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

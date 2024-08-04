@@ -16,6 +16,11 @@ interface DecodedToken {
   username: string;
 }
 
+interface Account {
+  id: number;
+  account_name: string;
+}
+
 function decodeJWT(token: string): DecodedToken {
   const base64Url = token.split(".")[1];
   const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
@@ -44,6 +49,8 @@ function PokemonEditForm() {
   const [iv, setIv] = useState<number | string>("");
   const [date, setDate] = useState("");
   const [position, setPosition] = useState<L.LatLng | null>(null);
+  const [accountId, setAccountId] = useState<number | null>(null);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -73,6 +80,7 @@ function PokemonEditForm() {
           setIsShiny(data.is_shiny);
           setIv(data.iv);
           setDate(formatDateForInput(data.date));
+          setAccountId(data.account_id);
 
           if (data.location) {
             const locationCoords = parseLocation(data.location);
@@ -94,7 +102,34 @@ function PokemonEditForm() {
       }
     };
 
+    const fetchAccounts = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.log("No token found, redirecting to login.");
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/accounts`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setAccounts(data);
+        } else {
+          console.log("Failed to fetch accounts:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error fetching accounts:", error);
+      }
+    };
+
     fetchPokemonDetails();
+    fetchAccounts();
   }, [id, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,6 +153,7 @@ function PokemonEditForm() {
       location: position
         ? `SRID=4326;POINT(${position.lng} ${position.lat})`
         : null,
+      account_id: accountId,
     };
 
     try {
@@ -206,6 +242,25 @@ function PokemonEditForm() {
             onChange={(e) => setDate(e.target.value)}
             required
           />
+        </label>
+      </div>
+      <div>
+        <label>
+          Account:
+          <select
+            value={accountId ?? ""}
+            onChange={(e) => setAccountId(Number(e.target.value))}
+            required
+          >
+            <option value="" disabled>
+              Select account
+            </option>
+            {accounts.map((account) => (
+              <option key={account.id} value={account.id}>
+                {account.account_name}
+              </option>
+            ))}
+          </select>
         </label>
       </div>
       <div>

@@ -1,0 +1,57 @@
+/* Home */
+
+.pokelist {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+.pokelist h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.pokelist input {
+  padding: 8px;
+  font-size: 16px;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 20px;
+}
+
+.pokelist table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pokelist table td img {
+  width: 100px !important;
+  height: auto;
+}
+
+.pokelist table tr {
+  border-bottom: 1px solid #ddd;
+}
+
+.pokelist table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.pokelist table td {
+  padding: 12px;
+  text-align: left;
+}
+
+.pokelist table td img {
+  width: 50px;
+  height: auto;
+}
+
+.pokelist table td a {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}
+
+.pokelist table td a:hover {
+  color: #007bff;
+}
