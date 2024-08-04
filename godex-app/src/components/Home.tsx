@@ -17,6 +17,7 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
     { id: number; account_name: string }[]
   >([]);
   const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
+  const [accountPokemonList, setAccountPokemonList] = useState<Pokemon[]>([]);
 
   useEffect(() => {
     const fetchUserAccounts = async () => {
@@ -70,7 +71,8 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
         const filteredList = pokemonList.filter((pokemon) =>
           accountPokemonNames.has(pokemon.name.toLowerCase())
         );
-        setFilteredPokemonList(filteredList);
+        setAccountPokemonList(filteredList);
+        setFilteredPokemonList(filteredList); // Initialize the filtered list with account-specific Pokémon
       }
     };
 
@@ -78,11 +80,15 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
   }, [selectedAccount, pokemonList]);
 
   useEffect(() => {
-    const filteredList = filteredPokemonList.filter((pokemon) =>
-      pokemon.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredPokemonList(filteredList);
-  }, [searchQuery]);
+    if (searchQuery === "") {
+      setFilteredPokemonList(accountPokemonList);
+    } else {
+      const filteredList = accountPokemonList.filter((pokemon) =>
+        pokemon.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredPokemonList(filteredList);
+    }
+  }, [searchQuery, accountPokemonList]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
