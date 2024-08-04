@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -43,6 +43,7 @@ function formatDateForInput(dateString: string): string {
 
 function PokemonEditForm() {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const [name, setName] = useState("");
   const [nickname, setNickname] = useState("");
   const [isShiny, setIsShiny] = useState(false);
@@ -171,7 +172,7 @@ function PokemonEditForm() {
       }
 
       alert("Pokémon updated successfully!");
-      navigate(`/pokemon/${name}`);
+      navigate(`/pokemon/${name}?accountId=${accountId}`); // Redirect to Pokémon list page with accountId
     } catch (error) {
       alert((error as Error).message); // Explicitly type 'error' as 'Error'
     }

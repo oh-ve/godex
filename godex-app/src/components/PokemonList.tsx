@@ -6,6 +6,7 @@ import { parseLocation } from "../utils";
 import { capitalize } from "../utils";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { useLocation } from "react-router-dom";
 
 const markerIcon = new L.Icon({
   iconUrl: require("leaflet/dist/images/marker-icon.png"),
@@ -15,6 +16,9 @@ const markerIcon = new L.Icon({
 
 const PokemonList: React.FC = () => {
   const { name } = useParams<{ name: string }>();
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const accountId = query.get("accountId");
   const [pokemonList, setPokemonList] = useState<UserPokemon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -28,11 +32,14 @@ const PokemonList: React.FC = () => {
     const fetchPokemon = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`http://localhost:8080/api/pokemon`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `http://localhost:8080/api/pokemon/account/${accountId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch Pokémon");
         }
@@ -49,7 +56,7 @@ const PokemonList: React.FC = () => {
     };
 
     fetchPokemon();
-  }, [name]);
+  }, [name, accountId]);
 
   const sortData = (key: keyof UserPokemon) => {
     let direction: "asc" | "desc" = "asc";
@@ -164,15 +171,6 @@ const PokemonList: React.FC = () => {
                 : ""}
             </th>
             <th>Location</th>
-            <th onClick={() => sortData("account_name")}>
-              Account Name{" "}
-              {sortConfig?.key === "account_name"
-                ? sortConfig.direction === "asc"
-                  ? "↑"
-                  : "↓"
-                : ""}
-            </th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -206,7 +204,6 @@ const PokemonList: React.FC = () => {
                     </MapContainer>
                   )}
                 </td>
-                <td>{pokemon.account_name}</td> {/* Display the account name */}
                 <td>
                   <button
                     onClick={() => navigate(`/edit-pokemon/${pokemon.id}`)}

@@ -128,7 +128,10 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
         <tbody>
           {filteredPokemonList.map((pokemon) => (
             <tr key={pokemon.id} className="pokemon-row">
-              <Link to={`/pokemon/${pokemon.name}`} className="row-link">
+              <Link
+                to={`/pokemon/${pokemon.name}?accountId=${selectedAccount}`}
+                className="row-link"
+              >
                 <td>{pokemon.id}</td>
                 <td>
                   <img src={pokemon.sprite} alt={pokemon.name} />

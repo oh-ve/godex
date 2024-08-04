@@ -153,7 +153,7 @@ function PokemonForm({ allPokemonNames }: PokemonFormProps) {
       }
 
       alert("Pokémon added successfully!");
-      navigate(`/pokemon/${name}`); // Redirect to Pokémon list page
+      navigate(`/pokemon/${name}?accountId=${selectedAccount}`); // Redirect to Pokémon list page with accountId
 
       // Optionally reset the form
       setName("");
