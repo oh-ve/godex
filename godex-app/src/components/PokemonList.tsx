@@ -84,6 +84,13 @@ const PokemonList: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this Pokémon?"
+    );
+    if (!confirmed) {
+      return;
+    }
+
     const token = localStorage.getItem("token");
     if (!token) {
       alert("You need to be logged in to delete a Pokémon.");
