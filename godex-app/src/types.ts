@@ -16,4 +16,5 @@ export interface UserPokemon {
   location: string;
   distance: string;
   account_name: string;
+  sprite: any;
 }
