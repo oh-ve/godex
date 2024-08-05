@@ -18,7 +18,7 @@ router.get("/", authenticateToken, async (req: Request, res: Response) => {
     console.log("Fetching Pokémon for user ID:", userId);
 
     const result = await pool.query(
-      `SELECT p.id, p.user_id, p.account_id, p.name, p.nickname, p.is_shiny, p.iv, p.date, ST_AsText(p.location) as location, p.distance, a.account_name
+      `SELECT p.id, p.user_id, p.account_id, p.name, p.nickname, p.is_shiny, p.iv, p.date, ST_AsText(p.location) as location, p.distance, p.wp, a.account_name
        FROM pokemon p
        LEFT JOIN accounts a ON p.account_id = a.id
        WHERE p.user_id = $1`,
@@ -35,7 +35,7 @@ router.get("/:id", authenticateToken, async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const result = await pool.query(
-      "SELECT id, user_id, account_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance FROM pokemon WHERE id = $1",
+      "SELECT id, user_id, account_id, name, nickname, is_shiny, iv, date, ST_AsText(location) as location, distance, wp FROM pokemon WHERE id = $1",
       [id]
     );
     if (result.rows.length === 0) {
@@ -55,7 +55,7 @@ router.get(
     const { accountId } = req.params;
     try {
       const result = await pool.query(
-        `SELECT p.id, p.user_id, p.account_id, p.name, p.nickname, p.is_shiny, p.iv, p.date, ST_AsText(p.location) as location, p.distance, a.account_name
+        `SELECT p.id, p.user_id, p.account_id, p.name, p.nickname, p.is_shiny, p.iv, p.date, ST_AsText(p.location) as location, p.distance, p.wp, a.account_name
          FROM pokemon p
          JOIN accounts a ON p.account_id = a.id
          WHERE p.account_id = $1`,
@@ -70,8 +70,17 @@ router.get(
 );
 
 router.post("/", authenticateToken, async (req: Request, res: Response) => {
-  const { user_id, account_id, name, nickname, is_shiny, iv, date, location } =
-    req.body;
+  const {
+    user_id,
+    account_id,
+    name,
+    nickname,
+    is_shiny,
+    iv,
+    date,
+    location,
+    wp,
+  } = req.body;
 
   try {
     const distanceResult = await pool.query(
@@ -82,7 +91,7 @@ router.post("/", authenticateToken, async (req: Request, res: Response) => {
     const distance = distanceResult.rows[0]?.distance || 0;
 
     const result = await pool.query(
-      "INSERT INTO pokemon (user_id, account_id, name, nickname, is_shiny, iv, date, location, distance) VALUES ($1, $2, $3, $4, $5, $6, $7, ST_GeomFromText($8, 4326), $9) RETURNING *",
+      "INSERT INTO pokemon (user_id, account_id, name, nickname, is_shiny, iv, date, location, distance, wp) VALUES ($1, $2, $3, $4, $5, $6, $7, ST_GeomFromText($8, 4326), $9, $10) RETURNING *",
       [
         user_id,
         account_id,
@@ -93,6 +102,7 @@ router.post("/", authenticateToken, async (req: Request, res: Response) => {
         date,
         location,
         distance,
+        wp,
       ]
     );
 
@@ -105,16 +115,17 @@ router.post("/", authenticateToken, async (req: Request, res: Response) => {
 
 router.put("/:id", authenticateToken, async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, nickname, is_shiny, iv, date, location, account_id } = req.body;
+  const { name, nickname, is_shiny, iv, date, location, account_id, wp } =
+    req.body;
   try {
     const client = await pool.connect();
     try {
       await client.query("BEGIN");
 
-      // Update the Pokémon details including the location and account
+      // Update the Pokémon details including the location, account, and WP
       const updateResult = await client.query(
-        "UPDATE pokemon SET name = $1, nickname = $2, is_shiny = $3, iv = $4, date = $5, location = ST_GeomFromText($6, 4326), account_id = $7 WHERE id = $8 RETURNING *",
-        [name, nickname, is_shiny, iv, date, location, account_id, id]
+        "UPDATE pokemon SET name = $1, nickname = $2, is_shiny = $3, iv = $4, date = $5, location = ST_GeomFromText($6, 4326), account_id = $7, wp = $8 WHERE id = $9 RETURNING *",
+        [name, nickname, is_shiny, iv, date, location, account_id, wp, id]
       );
 
       if (updateResult.rows.length === 0) {

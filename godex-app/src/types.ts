@@ -6,6 +6,7 @@ export interface Pokemon {
 }
 
 export interface UserPokemon {
+  wp: number;
   id: number;
   user_id: number;
   name: string;

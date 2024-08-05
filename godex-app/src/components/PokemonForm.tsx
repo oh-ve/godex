@@ -42,6 +42,7 @@ function formatDateForInput(date: Date): string {
 function PokemonForm({ allPokemonNames }: PokemonFormProps) {
   const navigate = useNavigate();
   const [name, setName] = useState("");
+  const [wp, setWp] = useState<number | string>("");
   const [nickname, setNickname] = useState("");
   const [isShiny, setIsShiny] = useState(false);
   const [iv, setIv] = useState<number | string>("");
@@ -125,7 +126,7 @@ function PokemonForm({ allPokemonNames }: PokemonFormProps) {
 
     const payload = {
       user_id: decodedToken.id,
-      account_id: selectedAccount, // Posting as account ID
+      account_id: selectedAccount,
       name,
       nickname,
       is_shiny: isShiny,
@@ -135,7 +136,8 @@ function PokemonForm({ allPokemonNames }: PokemonFormProps) {
         ? `SRID=4326;POINT(${position.lng} ${position.lat})`
         : homePosition
         ? `SRID=4326;POINT(${homePosition.lng} ${homePosition.lat})`
-        : null, // Use homePosition if no position is set, otherwise null
+        : null,
+      wp: typeof wp === "string" ? parseInt(wp) : wp,
     };
 
     try {
@@ -226,6 +228,17 @@ function PokemonForm({ allPokemonNames }: PokemonFormProps) {
               ))}
             </ul>
           )}
+        </label>
+      </div>
+      <div>
+        <label>
+          WP:
+          <input
+            type="number"
+            value={wp}
+            onChange={(e) => setWp(e.target.value)}
+            required
+          />
         </label>
       </div>
       <div>

@@ -11,6 +11,7 @@ const Sidebar: React.FC = () => {
       {selectedPokemon.map((pokemon) => (
         <div key={pokemon.id} className="selected-pokemon">
           <p>Name: {pokemon.name}</p>
+          <p>WP: {pokemon.wp}</p>
           <p>IV: {pokemon.iv}</p>
           <p>Account: {pokemon.account_name}</p>
           {pokemon.sprite && <img src={pokemon.sprite} alt={pokemon.name} />}

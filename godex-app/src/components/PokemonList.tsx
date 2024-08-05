@@ -131,6 +131,14 @@ const PokemonList: React.FC = () => {
                   : "↓"
                 : ""}
             </th>
+            <th onClick={() => sortData("wp")}>
+              WP{" "}
+              {sortConfig?.key === "wp"
+                ? sortConfig.direction === "asc"
+                  ? "↑"
+                  : "↓"
+                : ""}
+            </th>
             <th onClick={() => sortData("nickname")}>
               Nickname{" "}
               {sortConfig?.key === "nickname"
@@ -184,11 +192,12 @@ const PokemonList: React.FC = () => {
             return (
               <tr key={pokemon.id} className={isSelected ? "selected" : ""}>
                 <td>{pokemon.name}</td>
+                <td>{pokemon.wp}</td>
                 <td>{pokemon.nickname}</td>
                 <td>{pokemon.iv}</td>
                 <td>{pokemon.is_shiny ? "Yes" : "No"}</td>
                 <td>{distance ? distance.toFixed(2) : "0"}</td>
-                <td>{year}</td> {/* Display the year */}
+                <td>{year}</td>
                 <td>
                   {location && (
                     <MapContainer

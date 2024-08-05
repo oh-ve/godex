@@ -45,6 +45,7 @@ function PokemonEditForm() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const [name, setName] = useState("");
+  const [wp, setWp] = useState<number | string>("");
   const [nickname, setNickname] = useState("");
   const [isShiny, setIsShiny] = useState(false);
   const [iv, setIv] = useState<number | string>("");
@@ -82,11 +83,12 @@ function PokemonEditForm() {
           setIv(data.iv);
           setDate(formatDateForInput(data.date));
           setAccountId(data.account_id);
+          setWp(data.wp);
 
           if (data.location) {
             const locationCoords = parseLocation(data.location);
             if (locationCoords) {
-              console.log("Parsed Pokémon location:", locationCoords); // Add this line
+              console.log("Parsed Pokémon location:", locationCoords);
               const position = L.latLng(locationCoords.lat, locationCoords.lng);
               setPosition(position);
             } else {
@@ -155,6 +157,7 @@ function PokemonEditForm() {
         ? `SRID=4326;POINT(${position.lng} ${position.lat})`
         : null,
       account_id: accountId,
+      wp: typeof wp === "string" ? parseInt(wp) : wp,
     };
 
     try {
@@ -199,6 +202,17 @@ function PokemonEditForm() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </label>
+      </div>
+      <div>
+        <label>
+          WP:
+          <input
+            type="number"
+            value={wp}
+            onChange={(e) => setWp(e.target.value)}
             required
           />
         </label>
