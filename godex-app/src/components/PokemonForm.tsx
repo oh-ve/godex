@@ -305,7 +305,7 @@ function PokemonForm({ allPokemonNames }: PokemonFormProps) {
       <div>
         <label>
           Location (Pick from map):
-          <div style={{ height: "400px", width: "100%" }}>
+          <div style={{ height: "400px", width: "50%" }}>
             {homePosition && (
               <MapContainer
                 center={homePosition}

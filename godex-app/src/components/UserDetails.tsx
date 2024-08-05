@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { parseLocation } from "../utils";
+import { parseLocation, capitalize } from "../utils";
 
 const markerIcon = new L.Icon({
   iconUrl: require("leaflet/dist/images/marker-icon.png"),
@@ -32,7 +32,7 @@ const UserDetails: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setUsername(data.user.username);
+        setUsername(capitalize(data.user.username));
         if (data.user.home) {
           console.log("Raw home data:", data.user.home);
           const homeCoords = parseLocation(data.user.home);
@@ -137,14 +137,13 @@ const UserDetails: React.FC = () => {
 
   return (
     <div>
-      <h2>User Details</h2>
-      {username && <p>Username: {username}</p>}
-      <h2>Update Home Location</h2>
+      {username && <h2>Username: {username}</h2>}
+      <h3>Home Location</h3>
       {homePosition && (
         <MapContainer
           center={homePosition}
           zoom={13}
-          style={{ height: "400px", width: "100%" }}
+          style={{ height: "400px", width: "50%" }}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -154,7 +153,7 @@ const UserDetails: React.FC = () => {
         </MapContainer>
       )}
       <button onClick={handleSubmit}>Update Home Location</button>
-      <h2>Accounts</h2>
+      <h3>Accounts</h3>
       <ul>
         {accounts.map((account, index) => (
           <li key={index}>{account}</li>

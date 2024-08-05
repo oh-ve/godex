@@ -175,9 +175,9 @@ function PokemonEditForm() {
       }
 
       alert("Pokémon updated successfully!");
-      navigate(`/pokemon/${name}?accountId=${accountId}`); // Redirect to Pokémon list page with accountId
+      navigate(`/pokemon/${name}?accountId=${accountId}`);
     } catch (error) {
-      alert((error as Error).message); // Explicitly type 'error' as 'Error'
+      alert((error as Error).message);
     }
   };
 
@@ -281,7 +281,7 @@ function PokemonEditForm() {
       <div>
         <label>
           Location (Pick from map):
-          <div style={{ height: "400px", width: "100%" }}>
+          <div style={{ height: "400px", width: "50%" }}>
             {position && (
               <MapContainer
                 center={position}
