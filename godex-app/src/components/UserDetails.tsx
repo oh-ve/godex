@@ -14,7 +14,9 @@ const UserDetails: React.FC = () => {
   const [position, setPosition] = useState<L.LatLng | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [homePosition, setHomePosition] = useState<L.LatLng | null>(null);
-  const [accounts, setAccounts] = useState<string[]>([]);
+  const [accounts, setAccounts] = useState<
+    { account_name: string; avg_iv: number }[]
+  >([]);
   const [newAccount, setNewAccount] = useState<string>("");
 
   useEffect(() => {
@@ -34,7 +36,6 @@ const UserDetails: React.FC = () => {
         const data = await response.json();
         setUsername(capitalize(data.user.username));
         if (data.user.home) {
-          console.log("Raw home data:", data.user.home);
           const homeCoords = parseLocation(data.user.home);
           if (homeCoords) {
             setHomePosition(L.latLng(homeCoords.lat, homeCoords.lng));
@@ -60,7 +61,12 @@ const UserDetails: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setAccounts(data.map((account: any) => account.account_name));
+        setAccounts(
+          data.map((account: any) => ({
+            account_name: account.account_name,
+            avg_iv: Number(account.avg_iv),
+          }))
+        );
       }
     };
 
@@ -128,7 +134,7 @@ const UserDetails: React.FC = () => {
     });
 
     if (response.ok) {
-      setAccounts([...accounts, newAccount]);
+      setAccounts([...accounts, { account_name: newAccount, avg_iv: 0 }]);
       setNewAccount("");
     } else {
       alert("Failed to add new account.");
@@ -154,11 +160,27 @@ const UserDetails: React.FC = () => {
       )}
       <button onClick={handleSubmit}>Update Home Location</button>
       <h3>Accounts</h3>
-      <ul>
-        {accounts.map((account, index) => (
-          <li key={index}>{account}</li>
-        ))}
-      </ul>
+      <table>
+        <thead>
+          <tr>
+            <th>Account</th>
+            <th>Average IV</th>
+          </tr>
+        </thead>
+        <tbody>
+          {accounts.map((account, index) => (
+            <tr key={index}>
+              <td>{account.account_name}</td>
+              <td>
+                {typeof account.avg_iv === "number"
+                  ? account.avg_iv.toFixed(2)
+                  : "N/A"}{" "}
+                %
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
       <input
         type="text"
         value={newAccount}

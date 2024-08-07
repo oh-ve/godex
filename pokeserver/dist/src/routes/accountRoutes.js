@@ -24,7 +24,7 @@ router.get("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0
         if (!userId) {
             return res.status(400).json({ error: "User ID not found" });
         }
-        const result = yield pool.query("SELECT id, account_name FROM accounts WHERE user_id = $1", [userId]);
+        const result = yield pool.query("SELECT id, account_name, avg_iv FROM accounts WHERE user_id = $1", [userId]);
         res.json(result.rows);
     }
     catch (err) {
