@@ -26,4 +26,5 @@ export type Account = {
   is_main: boolean;
   num_shiny: number;
   num_hundos: number;
+  num_shundos: number;
 };

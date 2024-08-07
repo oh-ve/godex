@@ -16,7 +16,7 @@ router.get("/", authenticateToken, async (req: Request, res: Response) => {
     }
 
     const result = await pool.query(
-      "SELECT id, account_name, avg_iv, num_shiny, num_hundos, is_main FROM accounts WHERE user_id = $1",
+      "SELECT id, account_name, avg_iv, num_shiny, num_hundos, num_shundos, is_main FROM accounts WHERE user_id = $1",
       [userId]
     );
     res.json(result.rows);

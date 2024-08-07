@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { parseLocation, capitalize } from "../utils";
-import type { Account } from "../types";
+import type { Account } from "../types"; // Ensure you import the Account type
 
 const markerIcon = new L.Icon({
   iconUrl: require("leaflet/dist/images/marker-icon.png"),
@@ -15,7 +15,7 @@ const UserDetails: React.FC = () => {
   const [position, setPosition] = useState<L.LatLng | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [homePosition, setHomePosition] = useState<L.LatLng | null>(null);
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]); // Use the updated Account type
   const [newAccount, setNewAccount] = useState<string>("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -71,6 +71,7 @@ const UserDetails: React.FC = () => {
             is_main: account.is_main,
             num_shiny: account.num_shiny,
             num_hundos: account.num_hundos,
+            num_shundos: account.num_shundos, // Include num_shundos in the mapping
           }))
         );
       }
@@ -166,6 +167,7 @@ const UserDetails: React.FC = () => {
           is_main: false,
           num_shiny: 0,
           num_hundos: 0,
+          num_shundos: 0,
         },
       ]);
       setNewAccount("");
@@ -198,8 +200,11 @@ const UserDetails: React.FC = () => {
           <tr>
             <th onClick={() => requestSort("account_name")}>Account</th>
             <th onClick={() => requestSort("avg_iv")}>Average IV</th>
-            <th onClick={() => requestSort("num_shiny")}>Shiny</th>
-            <th onClick={() => requestSort("num_hundos")}>Hundos</th>
+            <th onClick={() => requestSort("num_shiny")}>Number of Shiny</th>
+            <th onClick={() => requestSort("num_hundos")}>Number of Hundos</th>
+            <th onClick={() => requestSort("num_shundos")}>
+              Number of Shundos
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -216,6 +221,7 @@ const UserDetails: React.FC = () => {
               </td>
               <td>{account.num_shiny}</td>
               <td>{account.num_hundos}</td>
+              <td>{account.num_shundos}</td>
             </tr>
           ))}
         </tbody>
