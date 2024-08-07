@@ -16,7 +16,6 @@ const pool = new pg_1.Pool({
     connectionString: process.env.DATABASE_URL,
 });
 const router = (0, express_1.Router)();
-// Get all accounts for the authenticated user
 router.get("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
@@ -24,7 +23,7 @@ router.get("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0
         if (!userId) {
             return res.status(400).json({ error: "User ID not found" });
         }
-        const result = yield pool.query("SELECT id, account_name, avg_iv, is_main FROM accounts WHERE user_id = $1", [userId]);
+        const result = yield pool.query("SELECT id, account_name, avg_iv, num_shiny, is_main FROM accounts WHERE user_id = $1", [userId]);
         res.json(result.rows);
     }
     catch (err) {
@@ -32,7 +31,6 @@ router.get("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0
         res.status(500).json({ error: "Internal Server Error" });
     }
 }));
-// Add a new account for the authenticated user
 router.post("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { account_name, is_main } = req.body;
@@ -44,7 +42,6 @@ router.post("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 
     }
     try {
         if (is_main) {
-            // Set other accounts for this user to not be main
             yield pool.query("UPDATE accounts SET is_main = FALSE WHERE user_id = $1", [userId]);
         }
         const result = yield pool.query("INSERT INTO accounts (user_id, account_name, is_main) VALUES ($1, $2, $3) RETURNING *", [userId, account_name, is_main]);
@@ -55,7 +52,6 @@ router.post("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 
         res.status(500).json({ error: "Internal Server Error" });
     }
 }));
-// Update an existing account for the authenticated user
 router.put("/:id", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { id } = req.params;
@@ -68,7 +64,6 @@ router.put("/:id", auth_1.authenticateToken, (req, res) => __awaiter(void 0, voi
     }
     try {
         if (is_main) {
-            // Set other accounts for this user to not be main
             yield pool.query("UPDATE accounts SET is_main = FALSE WHERE user_id = $1", [userId]);
         }
         const result = yield pool.query("UPDATE accounts SET account_name = $1, is_main = $2 WHERE id = $3 AND user_id = $4 RETURNING *", [account_name, is_main, id, userId]);
@@ -82,7 +77,6 @@ router.put("/:id", auth_1.authenticateToken, (req, res) => __awaiter(void 0, voi
         res.status(500).json({ error: "Internal Server Error" });
     }
 }));
-// Delete an account for the authenticated user
 router.delete("/:id", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { id } = req.params;
@@ -99,7 +93,6 @@ router.delete("/:id", auth_1.authenticateToken, (req, res) => __awaiter(void 0, 
         res.status(500).json({ error: "Internal Server Error" });
     }
 }));
-// Delete all accounts for the authenticated user
 router.delete("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;

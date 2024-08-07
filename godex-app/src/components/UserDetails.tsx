@@ -64,13 +64,19 @@ const UserDetails: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setAccounts(
-          data.map((account: any) => ({
-            account_name: account.account_name,
-            avg_iv: Number(account.avg_iv),
-            is_main: account.is_main,
-          }))
+        const fetchedAccounts = data.map((account: any) => ({
+          account_name: account.account_name,
+          avg_iv: Number(account.avg_iv),
+          is_main: account.is_main,
+          num_shiny: account.num_shiny,
+        }));
+        const mainAccount = fetchedAccounts.find(
+          (account: { is_main: boolean }) => account.is_main
         );
+        if (mainAccount) {
+          console.log("Main Account:", mainAccount);
+        }
+        setAccounts(fetchedAccounts);
       }
     };
 
@@ -158,7 +164,7 @@ const UserDetails: React.FC = () => {
     if (response.ok) {
       setAccounts([
         ...accounts,
-        { account_name: newAccount, avg_iv: 0, is_main: false },
+        { account_name: newAccount, avg_iv: 0, is_main: false, num_shiny: 0 },
       ]);
       setNewAccount("");
     } else {
@@ -190,6 +196,7 @@ const UserDetails: React.FC = () => {
           <tr>
             <th onClick={() => requestSort("account_name")}>Account</th>
             <th onClick={() => requestSort("avg_iv")}>Average IV</th>
+            <th onClick={() => requestSort("num_shiny")}>Number of Shiny</th>
           </tr>
         </thead>
         <tbody>
@@ -204,6 +211,7 @@ const UserDetails: React.FC = () => {
                   : "N/A"}{" "}
                 %
               </td>
+              <td>{account.num_shiny}</td>
             </tr>
           ))}
         </tbody>

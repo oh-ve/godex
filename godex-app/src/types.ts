@@ -24,4 +24,5 @@ export type Account = {
   account_name: string;
   avg_iv: number;
   is_main: boolean;
+  num_shiny: number;
 };
