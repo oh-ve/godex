@@ -22,10 +22,17 @@ const PokemonList: React.FC = () => {
   const [pokemonList, setPokemonList] = useState<UserPokemon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [filteredPokemonList, setFilteredPokemonList] = useState<UserPokemon[]>(
+    []
+  );
   const [sortConfig, setSortConfig] = useState<{
     key: keyof UserPokemon;
     direction: "asc" | "desc";
   } | null>(null);
+  const [filterShiny, setFilterShiny] = useState(false);
+  const [filter100iv, setFilter100iv] = useState(false);
+  const [filter95to99iv, setFilter95to99iv] = useState(false);
+  const [filterLessThan95iv, setFilterLessThan95iv] = useState(false);
   const navigate = useNavigate();
   const { selectedPokemon, handleSelect } = useSelectedPokemon();
 
@@ -49,6 +56,7 @@ const PokemonList: React.FC = () => {
           (pokemon) => pokemon.name.toLowerCase() === name?.toLowerCase()
         );
         setPokemonList(filteredData);
+        setFilteredPokemonList(filteredData); // Set initial filtered list
         setLoading(false);
       } catch (err: any) {
         setError(err.message);
@@ -58,6 +66,41 @@ const PokemonList: React.FC = () => {
 
     fetchPokemon();
   }, [name, accountId]);
+
+  useEffect(() => {
+    const applyFilters = () => {
+      let filteredList = pokemonList;
+
+      if (filterShiny) {
+        filteredList = filteredList.filter((pokemon) => pokemon.is_shiny);
+      }
+      if (filter100iv) {
+        filteredList = filteredList.filter(
+          (pokemon) => Number(pokemon.iv) === 100
+        );
+      }
+      if (filter95to99iv) {
+        filteredList = filteredList.filter(
+          (pokemon) => Number(pokemon.iv) >= 95 && Number(pokemon.iv) < 100
+        );
+      }
+      if (filterLessThan95iv) {
+        filteredList = filteredList.filter(
+          (pokemon) => Number(pokemon.iv) < 95
+        );
+      }
+
+      setFilteredPokemonList(filteredList);
+    };
+
+    applyFilters();
+  }, [
+    filterShiny,
+    filter100iv,
+    filter95to99iv,
+    filterLessThan95iv,
+    pokemonList,
+  ]);
 
   const sortData = (key: keyof UserPokemon) => {
     let direction: "asc" | "desc" = "asc";
@@ -70,7 +113,7 @@ const PokemonList: React.FC = () => {
     }
     setSortConfig({ key, direction });
 
-    const sortedData = [...pokemonList].sort((a, b) => {
+    const sortedData = [...filteredPokemonList].sort((a, b) => {
       if (a[key] < b[key]) {
         return direction === "asc" ? -1 : 1;
       }
@@ -80,7 +123,7 @@ const PokemonList: React.FC = () => {
       return 0;
     });
 
-    setPokemonList(sortedData);
+    setFilteredPokemonList(sortedData);
   };
 
   const handleDelete = async (id: number) => {
@@ -110,6 +153,9 @@ const PokemonList: React.FC = () => {
       }
 
       setPokemonList(pokemonList.filter((pokemon) => pokemon.id !== id));
+      setFilteredPokemonList(
+        filteredPokemonList.filter((pokemon) => pokemon.id !== id)
+      );
       alert("Pokémon deleted successfully!");
     } catch (error) {
       alert((error as Error).message);
@@ -127,6 +173,40 @@ const PokemonList: React.FC = () => {
   return (
     <div>
       <h1>{name ? capitalize(name) : ""}</h1>
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            checked={filterShiny}
+            onChange={(e) => setFilterShiny(e.target.checked)}
+          />
+          Shiny
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={filter100iv}
+            onChange={(e) => setFilter100iv(e.target.checked)}
+          />
+          100 IV
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={filter95to99iv}
+            onChange={(e) => setFilter95to99iv(e.target.checked)}
+          />
+          IV 95-99
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={filterLessThan95iv}
+            onChange={(e) => setFilterLessThan95iv(e.target.checked)}
+          />
+          IV {"<"} 95
+        </label>
+      </div>
       <table>
         <thead>
           <tr>
@@ -191,7 +271,7 @@ const PokemonList: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {pokemonList.map((pokemon) => {
+          {filteredPokemonList.map((pokemon) => {
             const location = parseLocation(pokemon.location);
             const distance = parseFloat(pokemon.distance);
             const year = new Date(pokemon.date).getFullYear();
