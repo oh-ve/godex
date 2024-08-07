@@ -1,5 +1,9 @@
 /* Home */
 
+.main {
+  font-weight: bold;
+}
+
 .pokelist {
   font-family: Arial, sans-serif;
   margin: 20px;

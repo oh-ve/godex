@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { parseLocation, capitalize } from "../utils";
+import type { Account } from "../types";
 
 const markerIcon = new L.Icon({
   iconUrl: require("leaflet/dist/images/marker-icon.png"),
@@ -14,10 +15,12 @@ const UserDetails: React.FC = () => {
   const [position, setPosition] = useState<L.LatLng | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [homePosition, setHomePosition] = useState<L.LatLng | null>(null);
-  const [accounts, setAccounts] = useState<
-    { account_name: string; avg_iv: number }[]
-  >([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [newAccount, setNewAccount] = useState<string>("");
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: string;
+  }>({ key: "account_name", direction: "ascending" });
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -65,6 +68,7 @@ const UserDetails: React.FC = () => {
           data.map((account: any) => ({
             account_name: account.account_name,
             avg_iv: Number(account.avg_iv),
+            is_main: account.is_main,
           }))
         );
       }
@@ -73,6 +77,24 @@ const UserDetails: React.FC = () => {
     fetchUserDetails();
     fetchUserAccounts();
   }, []);
+
+  const sortedAccounts = [...accounts].sort((a, b) => {
+    if ((a as any)[sortConfig.key] < (b as any)[sortConfig.key]) {
+      return sortConfig.direction === "ascending" ? -1 : 1;
+    }
+    if ((a as any)[sortConfig.key] > (b as any)[sortConfig.key]) {
+      return sortConfig.direction === "ascending" ? 1 : -1;
+    }
+    return 0;
+  });
+
+  const requestSort = (key: string) => {
+    let direction = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+  };
 
   const LocationMarker = () => {
     useMapEvents({
@@ -134,7 +156,10 @@ const UserDetails: React.FC = () => {
     });
 
     if (response.ok) {
-      setAccounts([...accounts, { account_name: newAccount, avg_iv: 0 }]);
+      setAccounts([
+        ...accounts,
+        { account_name: newAccount, avg_iv: 0, is_main: false },
+      ]);
       setNewAccount("");
     } else {
       alert("Failed to add new account.");
@@ -163,14 +188,16 @@ const UserDetails: React.FC = () => {
       <table>
         <thead>
           <tr>
-            <th>Account</th>
-            <th>Average IV</th>
+            <th onClick={() => requestSort("account_name")}>Account</th>
+            <th onClick={() => requestSort("avg_iv")}>Average IV</th>
           </tr>
         </thead>
         <tbody>
-          {accounts.map((account, index) => (
+          {sortedAccounts.map((account, index) => (
             <tr key={index}>
-              <td>{account.account_name}</td>
+              <td style={{ fontWeight: account.is_main ? "bold" : "normal" }}>
+                {account.account_name}
+              </td>
               <td>
                 {typeof account.avg_iv === "number"
                   ? account.avg_iv.toFixed(2)

@@ -19,3 +19,9 @@ export interface UserPokemon {
   account_name: string;
   sprite: any;
 }
+
+export type Account = {
+  account_name: string;
+  avg_iv: number;
+  is_main: boolean;
+};

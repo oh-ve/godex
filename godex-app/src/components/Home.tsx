@@ -14,7 +14,7 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
   const [filteredPokemonList, setFilteredPokemonList] = useState<Pokemon[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [accounts, setAccounts] = useState<
-    { id: number; account_name: string }[]
+    { id: number; account_name: string; is_main: boolean }[]
   >([]);
   const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
   const [accountPokemonList, setAccountPokemonList] = useState<any[]>([]);
@@ -34,6 +34,13 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
 
       if (response.ok) {
         const data = await response.json();
+
+        data.sort((a: any, b: any) => {
+          if (a.is_main && !b.is_main) return -1;
+          if (!a.is_main && b.is_main) return 1;
+          return a.account_name.localeCompare(b.account_name);
+        });
+
         setAccounts(data);
         if (data.length > 0) {
           setSelectedAccount(data[0].id);
@@ -193,6 +200,7 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
             style={{
               backgroundColor:
                 acc.id === selectedAccount ? "lightblue" : "white",
+              fontWeight: acc.is_main ? "bold" : "normal",
             }}
           >
             {acc.account_name}
