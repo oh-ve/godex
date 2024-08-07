@@ -30,9 +30,7 @@ const PokemonList: React.FC = () => {
     direction: "asc" | "desc";
   } | null>(null);
   const [filterShiny, setFilterShiny] = useState(false);
-  const [filter100iv, setFilter100iv] = useState(false);
-  const [filter95to99iv, setFilter95to99iv] = useState(false);
-  const [filterLessThan95iv, setFilterLessThan95iv] = useState(false);
+  const [activeIvFilter, setActiveIvFilter] = useState<string | null>(null); // Only one IV filter can be active at a time
   const navigate = useNavigate();
   const { selectedPokemon, handleSelect } = useSelectedPokemon();
 
@@ -74,33 +72,33 @@ const PokemonList: React.FC = () => {
       if (filterShiny) {
         filteredList = filteredList.filter((pokemon) => pokemon.is_shiny);
       }
-      if (filter100iv) {
-        filteredList = filteredList.filter(
-          (pokemon) => Number(pokemon.iv) === 100
-        );
-      }
-      if (filter95to99iv) {
-        filteredList = filteredList.filter(
-          (pokemon) => Number(pokemon.iv) >= 95 && Number(pokemon.iv) < 100
-        );
-      }
-      if (filterLessThan95iv) {
-        filteredList = filteredList.filter(
-          (pokemon) => Number(pokemon.iv) < 95
-        );
+      if (activeIvFilter) {
+        switch (activeIvFilter) {
+          case "100iv":
+            filteredList = filteredList.filter(
+              (pokemon) => Number(pokemon.iv) === 100
+            );
+            break;
+          case "95to99iv":
+            filteredList = filteredList.filter(
+              (pokemon) => Number(pokemon.iv) >= 95 && Number(pokemon.iv) < 100
+            );
+            break;
+          case "lessThan95iv":
+            filteredList = filteredList.filter(
+              (pokemon) => Number(pokemon.iv) < 95
+            );
+            break;
+          default:
+            break;
+        }
       }
 
       setFilteredPokemonList(filteredList);
     };
 
     applyFilters();
-  }, [
-    filterShiny,
-    filter100iv,
-    filter95to99iv,
-    filterLessThan95iv,
-    pokemonList,
-  ]);
+  }, [filterShiny, activeIvFilter, pokemonList]);
 
   const sortData = (key: keyof UserPokemon) => {
     let direction: "asc" | "desc" = "asc";
@@ -162,6 +160,10 @@ const PokemonList: React.FC = () => {
     }
   };
 
+  const handleIvFilterChange = (filter: string) => {
+    setActiveIvFilter(filter === activeIvFilter ? null : filter);
+  };
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -185,24 +187,24 @@ const PokemonList: React.FC = () => {
         <label>
           <input
             type="checkbox"
-            checked={filter100iv}
-            onChange={(e) => setFilter100iv(e.target.checked)}
+            checked={activeIvFilter === "100iv"}
+            onChange={() => handleIvFilterChange("100iv")}
           />
           100 IV
         </label>
         <label>
           <input
             type="checkbox"
-            checked={filter95to99iv}
-            onChange={(e) => setFilter95to99iv(e.target.checked)}
+            checked={activeIvFilter === "95to99iv"}
+            onChange={() => handleIvFilterChange("95to99iv")}
           />
           IV 95-99
         </label>
         <label>
           <input
             type="checkbox"
-            checked={filterLessThan95iv}
-            onChange={(e) => setFilterLessThan95iv(e.target.checked)}
+            checked={activeIvFilter === "lessThan95iv"}
+            onChange={() => handleIvFilterChange("lessThan95iv")}
           />
           IV {"<"} 95
         </label>
