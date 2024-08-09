@@ -78,7 +78,6 @@ function App() {
   return (
     <SelectedPokemonProvider>
       {token && <Navbar />}
-      <h1>GoDex</h1>
       <div style={{ display: "flex" }}>
         <div style={{ flex: 1 }}>
           <Routes>
@@ -121,7 +120,7 @@ function App() {
             />
           </Routes>
         </div>
-        <Sidebar />
+        {token && <Sidebar />}
       </div>
     </SelectedPokemonProvider>
   );

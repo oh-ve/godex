@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import cetoddle2 from "../img/cetoddle2.png";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -26,19 +27,18 @@ const Login: React.FC = () => {
 
       const data = await response.json();
       localStorage.setItem("token", data.accessToken);
-      navigate("/"); // Redirect to the home page or another protected page
+      navigate("/");
     } catch (err) {
       setError((err as Error).message);
     }
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
+    <div className="login-container">
+      <h1 className="login-header">GoDex</h1>
+      {error && <p className="error-message">{error}</p>}
+      <form className="login-form" onSubmit={handleSubmit}>
         <div>
-          <label>Username:</label>
           <input
             type="text"
             value={username}
@@ -47,7 +47,6 @@ const Login: React.FC = () => {
           />
         </div>
         <div>
-          <label>Password:</label>
           <input
             type="password"
             value={password}
@@ -57,6 +56,7 @@ const Login: React.FC = () => {
         </div>
         <button type="submit">Login</button>
       </form>
+      <img className="login-image" src={cetoddle2} alt="Cetoddle" />
     </div>
   );
 };

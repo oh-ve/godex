@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import cetoddle1 from "../img/cetoddle1.png";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
