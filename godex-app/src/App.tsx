@@ -4,6 +4,7 @@ import {
   Route,
   Routes,
   useNavigate,
+  Navigate,
 } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./components/Login";
@@ -24,13 +25,13 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPokemonList = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/login");
-        return;
-      }
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
+    const fetchPokemonList = async () => {
       try {
         const response = await fetch(
           "https://pokeapi.co/api/v2/pokemon?limit=10000"
@@ -72,12 +73,11 @@ function App() {
   }, [navigate]);
 
   const allPokemonNames = pokemonList.map((pokemon) => pokemon.name);
+  const token = localStorage.getItem("token");
 
   return (
     <SelectedPokemonProvider>
-      {" "}
-      {/* Wrap with the provider */}
-      <Navbar />
+      {token && <Navbar />}
       <h1>GoDex</h1>
       <div style={{ display: "flex" }}>
         <div style={{ flex: 1 }}>
@@ -86,23 +86,42 @@ function App() {
             <Route
               path="/"
               element={
-                <Home
-                  pokemonList={pokemonList}
-                  loading={loading}
-                  error={error}
-                />
+                token ? (
+                  <Home
+                    pokemonList={pokemonList}
+                    loading={loading}
+                    error={error}
+                  />
+                ) : (
+                  <Navigate to="/login" />
+                )
               }
             />
-            <Route path="/user-details" element={<UserDetails />} />
+            <Route
+              path="/user-details"
+              element={token ? <UserDetails /> : <Navigate to="/login" />}
+            />
             <Route
               path="/add-pokemon"
-              element={<PokemonForm allPokemonNames={allPokemonNames} />}
+              element={
+                token ? (
+                  <PokemonForm allPokemonNames={allPokemonNames} />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
             />
-            <Route path="/edit-pokemon/:id" element={<PokemonEditForm />} />
-            <Route path="/pokemon/:name" element={<PokemonList />} />
+            <Route
+              path="/edit-pokemon/:id"
+              element={token ? <PokemonEditForm /> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/pokemon/:name"
+              element={token ? <PokemonList /> : <Navigate to="/login" />}
+            />
           </Routes>
         </div>
-        <Sidebar /> {/* Add the sidebar here */}
+        <Sidebar />
       </div>
     </SelectedPokemonProvider>
   );
