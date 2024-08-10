@@ -1,17 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import type { Pokemon } from "../types";
+import type { BasicPokemon, DetailedPokemon } from "../types";
 import { capitalize } from "../utils";
-import "../Styles.css";
 
 interface HomeProps {
-  pokemonList: Pokemon[];
+  pokemonList: BasicPokemon[];
   loading: boolean;
   error: string;
 }
 
 const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
-  const [filteredPokemonList, setFilteredPokemonList] = useState<Pokemon[]>([]);
+  const [filteredPokemonList, setFilteredPokemonList] = useState<
+    DetailedPokemon[]
+  >([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [accounts, setAccounts] = useState<
     { id: number; account_name: string; is_main: boolean }[]
@@ -19,6 +20,17 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
   const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
   const [accountPokemonList, setAccountPokemonList] = useState<any[]>([]);
   const [filterOption, setFilterOption] = useState<string>("");
+
+  const fetchPokemonDetails = async (pokemon: BasicPokemon) => {
+    const response = await fetch(pokemon.url);
+    const data = await response.json();
+    return {
+      id: data.id,
+      name: data.name,
+      type: data.types.map((typeInfo: any) => typeInfo.type.name).join(", "),
+      sprite: data.sprites.front_default,
+    };
+  };
 
   useEffect(() => {
     const fetchUserAccounts = async () => {
@@ -73,14 +85,17 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
       if (response.ok) {
         const data = await response.json();
         setAccountPokemonList(data);
-        setFilteredPokemonList(
-          pokemonList.filter((pokemon) =>
-            data.some(
-              (entry: any) =>
-                entry.name.toLowerCase() === pokemon.name.toLowerCase()
+        const filteredPokemon = await Promise.all(
+          pokemonList
+            .filter((pokemon) =>
+              data.some(
+                (entry: any) =>
+                  entry.name.toLowerCase() === pokemon.name.toLowerCase()
+              )
             )
-          )
+            .map(fetchPokemonDetails)
         );
+        setFilteredPokemonList(filteredPokemon);
       }
     };
 
@@ -152,14 +167,21 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
       );
     }
 
-    setFilteredPokemonList(
-      pokemonList.filter((pokemon) =>
-        updatedList.some(
-          (entry: any) =>
-            entry.name.toLowerCase() === pokemon.name.toLowerCase()
-        )
-      )
-    );
+    const fetchDetailsForFilteredPokemon = async () => {
+      const filteredPokemon = await Promise.all(
+        pokemonList
+          .filter((pokemon) =>
+            updatedList.some(
+              (entry: any) =>
+                entry.name.toLowerCase() === pokemon.name.toLowerCase()
+            )
+          )
+          .map(fetchPokemonDetails)
+      );
+      setFilteredPokemonList(filteredPokemon);
+    };
+
+    fetchDetailsForFilteredPokemon();
   }, [searchQuery, accountPokemonList, filterOption, pokemonList]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,4 +1,9 @@
-export interface Pokemon {
+export interface BasicPokemon {
+  name: string;
+  url: string;
+}
+
+export interface DetailedPokemon {
   id: number;
   name: string;
   type: string;

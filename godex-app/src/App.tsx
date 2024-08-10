@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -6,6 +6,7 @@ import {
   useNavigate,
   Navigate,
 } from "react-router-dom";
+import "./Styles.css";
 import Navbar from "./components/Navbar";
 import Login from "./components/Login";
 import Home from "./components/Home";
@@ -15,14 +16,19 @@ import PokemonList from "./components/PokemonList";
 import UserDetails from "./components/UserDetails";
 import Sidebar from "./components/Sidebar";
 import { SelectedPokemonProvider } from "./components/context/SelectedPokemonContext";
-import type { Pokemon } from "./types";
+import type { BasicPokemon, DetailedPokemon } from "./types";
 
 function App() {
-  const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
+  const [pokemonList, setPokemonList] = useState<BasicPokemon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navigate = useNavigate();
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -40,28 +46,7 @@ function App() {
           throw new Error("Failed to fetch Pokémon list");
         }
         const data = await response.json();
-
-        const fetchPokemonDetails = async (url: string) => {
-          const response = await fetch(url);
-          const data = await response.json();
-          return {
-            id: data.id,
-            name: data.name,
-            type: data.types
-              .map((typeInfo: any) => typeInfo.type.name)
-              .join(", "),
-            sprite: data.sprites.front_default,
-          };
-        };
-
-        const detailedPokemonList = await Promise.all(
-          data.results.map(async (pokemon: { url: string }) => {
-            const details = await fetchPokemonDetails(pokemon.url);
-            return details;
-          })
-        );
-
-        setPokemonList(detailedPokemonList);
+        setPokemonList(data.results);
         setLoading(false);
       } catch (err) {
         setError((err as Error).message);
@@ -72,12 +57,13 @@ function App() {
     fetchPokemonList();
   }, [navigate]);
 
-  const allPokemonNames = pokemonList.map((pokemon) => pokemon.name);
   const token = localStorage.getItem("token");
 
   return (
     <SelectedPokemonProvider>
-      {token && <Navbar />}
+      {token && (
+        <Navbar toggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
+      )}
       <div style={{ display: "flex" }}>
         <div style={{ flex: 1 }}>
           <Routes>
@@ -104,7 +90,9 @@ function App() {
               path="/add-pokemon"
               element={
                 token ? (
-                  <PokemonForm allPokemonNames={allPokemonNames} />
+                  <PokemonForm
+                    allPokemonNames={pokemonList.map((p) => p.name)}
+                  />
                 ) : (
                   <Navigate to="/login" />
                 )
@@ -120,7 +108,7 @@ function App() {
             />
           </Routes>
         </div>
-        {token && <Sidebar />}
+        {token && <Sidebar sidebarOpen={sidebarOpen} />}
       </div>
     </SelectedPokemonProvider>
   );
