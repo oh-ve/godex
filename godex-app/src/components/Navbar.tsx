@@ -2,7 +2,11 @@ import { Link, useNavigate } from "react-router-dom";
 import cetoddle1 from "../img/cetoddle1.png";
 import { useSelectedPokemon } from "./context/SelectedPokemonContext";
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  toggleSidebar: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
   const navigate = useNavigate();
   const { selectedPokemon } = useSelectedPokemon();
 
@@ -22,7 +26,7 @@ const Navbar: React.FC = () => {
         <Link to="/">Home</Link>
         <Link to="/add-pokemon">Add Pokemon</Link>
         <Link to="/user-details">User details</Link>
-        <button onClick={handleLogout}>
+        <button onClick={toggleSidebar}>
           Show selected ({selectedPokemon.length})
         </button>
       </div>

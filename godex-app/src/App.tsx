@@ -61,7 +61,7 @@ function App() {
 
   return (
     <SelectedPokemonProvider>
-      {token && <Navbar />}
+      {token && <Navbar toggleSidebar={toggleSidebar} />}
       <div style={{ display: "flex" }}>
         <div style={{ flex: 1 }}>
           <Routes>
@@ -106,7 +106,7 @@ function App() {
             />
           </Routes>
         </div>
-        {token && <Sidebar />}
+        {token && <Sidebar isOpen={sidebarOpen} />}
       </div>
     </SelectedPokemonProvider>
   );

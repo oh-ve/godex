@@ -1,8 +1,14 @@
 import React from "react";
 import { useSelectedPokemon } from "./context/SelectedPokemonContext";
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isOpen: boolean;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
   const { selectedPokemon, handleSelect } = useSelectedPokemon();
+
+  if (!isOpen) return null;
 
   return (
     <div className="sidebar">
