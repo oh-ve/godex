@@ -177,15 +177,11 @@ const UserDetails: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="user-details">
       {username && <h2>Username: {username}</h2>}
       <h3>Home Location</h3>
       {homePosition && (
-        <MapContainer
-          center={homePosition}
-          zoom={13}
-          style={{ height: "400px", width: "50%" }}
-        >
+        <MapContainer center={homePosition} zoom={13} className="map-container">
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -226,13 +222,15 @@ const UserDetails: React.FC = () => {
           ))}
         </tbody>
       </table>
-      <input
-        type="text"
-        value={newAccount}
-        onChange={(e) => setNewAccount(e.target.value)}
-        placeholder="New Account"
-      />
-      <button onClick={handleAddAccount}>Add Account</button>
+      <div className="input-row">
+        <input
+          type="text"
+          value={newAccount}
+          onChange={(e) => setNewAccount(e.target.value)}
+          placeholder="New Account"
+        />
+        <button onClick={handleAddAccount}>Add Account</button>
+      </div>
     </div>
   );
 };
