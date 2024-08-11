@@ -26,6 +26,25 @@ router.get("/", authenticateToken, async (req: Request, res: Response) => {
   }
 });
 
+router.get("/:id", authenticateToken, async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const userId = req.user?.id;
+
+  try {
+    const result = await pool.query(
+      "SELECT account_name FROM accounts WHERE id = $1 AND user_id = $2",
+      [id, userId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Account not found" });
+    }
+    res.json(result.rows[0]);
+  } catch (err: any) {
+    console.error("Error executing query:", err.stack);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 router.post("/", authenticateToken, async (req: Request, res: Response) => {
   const { account_name, is_main } = req.body;
   const userId = req.user?.id;

@@ -31,6 +31,22 @@ router.get("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0
         res.status(500).json({ error: "Internal Server Error" });
     }
 }));
+router.get("/:id", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const { id } = req.params;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+    try {
+        const result = yield pool.query("SELECT account_name FROM accounts WHERE id = $1 AND user_id = $2", [id, userId]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Account not found" });
+        }
+        res.json(result.rows[0]);
+    }
+    catch (err) {
+        console.error("Error executing query:", err.stack);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}));
 router.post("/", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { account_name, is_main } = req.body;

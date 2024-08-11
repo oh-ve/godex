@@ -60,7 +60,7 @@ body {
 }
 
 .login-form button:hover {
-  background-color: #0056b3;
+  background-color: #4270a1;
 }
 
 .error-message {
@@ -173,6 +173,10 @@ body {
   cursor: pointer;
 }
 
+.sidebar button:hover {
+  background-color: #e5b744;
+}
+
 /* Overlay */
 .overlay {
   position: fixed;
@@ -228,16 +232,34 @@ body {
 .home table {
   width: 100%;
   border-collapse: collapse;
+  background-color: #3e5c76; /* Dark background for the table */
+  color: #ffffff;
+}
+
+.home th,
+.home td {
+  padding: 1rem; /* Increased padding for wider contents */
+  text-align: left;
+  min-width: 150px; /* Minimum width for table cells */
+}
+
+.home th {
+  cursor: pointer;
+}
+
+.home th:hover {
+  color: #f6cf57; /* Yellow color on hover */
 }
 
 .home .pokemon-row {
-  border-bottom: 1px solid #ddd;
-  background-color: whitesmoke;
-  color: #333;
+  background-color: #3e5c76;
+  color: #ffffff;
+  border-bottom: 1px solid #ddd; /* Light border for rows */
 }
 
 .home .pokemon-row:hover {
   background-color: #f6cf57;
+  color: #ffffff;
 }
 
 .home .pokemon-row img {
@@ -266,4 +288,114 @@ body {
   padding: 0.5rem;
   border-radius: 4px;
   border: 1px solid #ddd;
+}
+
+/* PokemonList */
+
+.poke-list {
+  background-color: #3e5c76;
+  color: #ffffff;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.poke-list h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  color: #f6cf57; /* Yellow color */
+}
+
+.poke-list label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.poke-list input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+.poke-list div {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 1.5rem;
+}
+
+.poke-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.poke-list th,
+.poke-list td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.poke-list th {
+  cursor: pointer;
+}
+
+.poke-list th:hover {
+  color: #f6cf57;
+}
+
+.poke-list .pokemon-row {
+  background-color: whitesmoke;
+  color: #333;
+}
+
+.poke-list .pokemon-row:hover {
+  background-color: #f6cf57;
+  color: #ffffff;
+}
+
+.poke-list .selected {
+  background-color: #4270a1;
+  color: #ffffff;
+}
+
+.poke-list .pokemon-row img {
+  height: 50px;
+  width: auto;
+}
+
+.poke-list .row-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.poke-list .row-link td {
+  padding: 0.5rem;
+}
+
+.poke-list button {
+  padding: 5px 10px;
+  margin-right: 5px;
+  background-color: #f6cf57;
+  border: none;
+  color: #333;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.poke-list button:hover {
+  background-color: #e5b744;
+}
+
+.poke-list map {
+  height: 120px;
+  width: 250px;
+  border-radius: 4px;
+  overflow: hidden;
 }

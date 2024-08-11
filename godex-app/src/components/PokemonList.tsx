@@ -7,6 +7,8 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useLocation } from "react-router-dom";
 import { useSelectedPokemon } from "./context/SelectedPokemonContext";
+import { MdDelete, MdModeEditOutline } from "react-icons/md";
+import { FaCirclePlus, FaCircleMinus } from "react-icons/fa6";
 
 const markerIcon = new L.Icon({
   iconUrl: require("leaflet/dist/images/marker-icon.png"),
@@ -19,6 +21,7 @@ const PokemonList: React.FC = () => {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const accountId = query.get("accountId");
+  const [accountName, setAccountName] = useState("");
   const [pokemonList, setPokemonList] = useState<UserPokemon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -33,6 +36,31 @@ const PokemonList: React.FC = () => {
   const [activeIvFilter, setActiveIvFilter] = useState<string | null>(null); // Only one IV filter can be active at a time
   const navigate = useNavigate();
   const { selectedPokemon, handleSelect } = useSelectedPokemon();
+
+  useEffect(() => {
+    const fetchAccountName = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          `http://localhost:8080/api/accounts/${accountId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch account details");
+        }
+        const data = await response.json();
+        setAccountName(data.account_name);
+      } catch (err: any) {
+        setError(err.message);
+      }
+    };
+
+    fetchAccountName();
+  }, [accountId]);
 
   useEffect(() => {
     const fetchPokemon = async () => {
@@ -173,8 +201,8 @@ const PokemonList: React.FC = () => {
   }
 
   return (
-    <div>
-      <h1>{name ? capitalize(name) : ""}</h1>
+    <div className="poke-list">
+      <h1>{`${accountName}'s ${capitalize(name ?? "")}s`}</h1>
       <div>
         <label>
           <input
@@ -269,7 +297,7 @@ const PokemonList: React.FC = () => {
                 : ""}
             </th>
             <th>Location</th>
-            <th>Actions</th> {/* Added column for actions */}
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -277,7 +305,7 @@ const PokemonList: React.FC = () => {
             const location = parseLocation(pokemon.location);
             const distance = parseFloat(pokemon.distance);
             const year = new Date(pokemon.date).getFullYear();
-            const isSelected = selectedPokemon.some((p) => p.id === pokemon.id); // Check if Pokémon is selected
+            const isSelected = selectedPokemon.some((p) => p.id === pokemon.id);
             return (
               <tr key={pokemon.id} className={isSelected ? "selected" : ""}>
                 <td>{pokemon.name}</td>
@@ -309,13 +337,13 @@ const PokemonList: React.FC = () => {
                   <button
                     onClick={() => navigate(`/edit-pokemon/${pokemon.id}`)}
                   >
-                    Edit
+                    <MdModeEditOutline />
                   </button>
                   <button onClick={() => handleDelete(pokemon.id)}>
-                    Delete
+                    <MdDelete />
                   </button>
                   <button onClick={() => handleSelect(pokemon)}>
-                    {isSelected ? "Deselect" : "Select"}
+                    {isSelected ? <FaCircleMinus /> : <FaCirclePlus />}
                   </button>
                 </td>
               </tr>
