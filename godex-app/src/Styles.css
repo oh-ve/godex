@@ -83,10 +83,17 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
   background-color: #333;
   padding: 1rem;
+}
+
+.navlinks-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
 }
 
 .navbar a {
@@ -105,8 +112,11 @@ body {
   background-color: #444;
   border: none;
   padding: 0.5rem 1rem;
+  margin: 0.5rem 1rem;
   cursor: pointer;
   border-radius: 4px;
+  position: relative;
+  z-index: 10;
 }
 
 .navbar button:hover {
