@@ -120,3 +120,22 @@ body {
 .navbar button:hover {
   background-color: #666;
 }
+
+/* Sidebar */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 300px;
+  height: 100%;
+  background-color: #333;
+  color: whitesmoke;
+  padding: 1rem;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+  transition: right 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.open {
+  right: 0;
+}

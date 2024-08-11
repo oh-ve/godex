@@ -11,7 +11,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${isOpen ? "open" : ""}`}>
       <h2>Selected Pokémon</h2>
       {selectedPokemon.length === 0 && <p>No Pokémon selected.</p>}
       {selectedPokemon.map((pokemon) => (
