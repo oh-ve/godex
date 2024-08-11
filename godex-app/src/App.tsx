@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -16,19 +16,36 @@ import PokemonList from "./components/PokemonList";
 import UserDetails from "./components/UserDetails";
 import Sidebar from "./components/Sidebar";
 import { SelectedPokemonProvider } from "./components/context/SelectedPokemonContext";
-import type { BasicPokemon, DetailedPokemon } from "./types";
+import type { BasicPokemon } from "./types";
 
 function App() {
   const [pokemonList, setPokemonList] = useState<BasicPokemon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      sidebarRef.current &&
+      !sidebarRef.current.contains(event.target as Node)
+    ) {
+      setSidebarOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -62,6 +79,9 @@ function App() {
   return (
     <SelectedPokemonProvider>
       {token && <Navbar toggleSidebar={toggleSidebar} isOpen={sidebarOpen} />}
+      {sidebarOpen && (
+        <div className="overlay visible" onClick={toggleSidebar}></div>
+      )}
       <div style={{ display: "flex" }}>
         <div style={{ flex: 1 }}>
           <Routes>
@@ -106,7 +126,7 @@ function App() {
             />
           </Routes>
         </div>
-        {token && <Sidebar isOpen={sidebarOpen} />}
+        {token && <Sidebar ref={sidebarRef} isOpen={sidebarOpen} />}
       </div>
     </SelectedPokemonProvider>
   );
