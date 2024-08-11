@@ -4,9 +4,10 @@ import { useSelectedPokemon } from "./context/SelectedPokemonContext";
 
 interface NavbarProps {
   toggleSidebar: () => void;
+  isOpen: boolean;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
+const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, isOpen }) => {
   const navigate = useNavigate();
   const { selectedPokemon } = useSelectedPokemon();
 
@@ -17,19 +18,19 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
 
   return (
     <nav className="navbar">
-      <div className="navlinks-left">
-        <img
-          src={cetoddle1}
-          alt="Logo"
-          style={{ height: "50px", marginRight: "1rem" }}
-        />
-        <Link to="/">Home</Link>
-        <Link to="/add-pokemon">Add Pokemon</Link>
-        <Link to="/user-details">User details</Link>
-        <button onClick={toggleSidebar}>
-          Show selected ({selectedPokemon.length})
-        </button>
-      </div>
+      <img
+        src={cetoddle1}
+        alt="Logo"
+        style={{ height: "50px", marginRight: "1rem" }}
+      />
+      <Link to="/">Home</Link>
+      <Link to="/add-pokemon">Add Pokemon</Link>
+      <Link to="/user-details">User details</Link>
+      <button onClick={toggleSidebar}>
+        {isOpen
+          ? `Hide selected (${selectedPokemon.length})`
+          : `Show selected (${selectedPokemon.length})`}
+      </button>
       <button onClick={handleLogout}>Logout</button>
     </nav>
   );
