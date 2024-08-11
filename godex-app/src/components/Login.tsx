@@ -36,7 +36,6 @@ const Login: React.FC = () => {
   return (
     <div className="login-container">
       <h1 className="login-header">GoDex</h1>
-      {error && <p className="error-message">{error}</p>}
       <form className="login-form" onSubmit={handleSubmit}>
         <div>
           <input
@@ -55,6 +54,7 @@ const Login: React.FC = () => {
           />
         </div>
         <button type="submit">Login</button>
+        {error && <p className="error-message">{error}</p>}
       </form>
       <img className="login-image" src={cetoddle2} alt="Cetoddle" />
     </div>
