@@ -188,8 +188,8 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
     setSearchQuery(e.target.value);
   };
 
-  const handleAccountClick = (accountId: number) => {
-    setSelectedAccount(accountId);
+  const handleAccountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedAccount(Number(e.target.value));
   };
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -205,44 +205,47 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
   }
 
   return (
-    <div className="pokelist">
+    <div className="home">
       <h1>All Pokémon</h1>
-      <input
-        type="text"
-        placeholder="Search Pokémon"
-        value={searchQuery}
-        onChange={handleSearchChange}
-        style={{ marginBottom: "20px" }}
-      />
-      <div>
-        {accounts.map((acc) => (
-          <button
-            key={acc.id}
-            onClick={() => handleAccountClick(acc.id)}
-            style={{
-              backgroundColor:
-                acc.id === selectedAccount ? "lightblue" : "white",
-              fontWeight: acc.is_main ? "bold" : "normal",
-            }}
-          >
-            {acc.account_name}
-          </button>
-        ))}
+      <div className="home-filter">
+        <input
+          type="text"
+          placeholder="Search Pokémon"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          style={{ marginBottom: "20px" }}
+        />
+        <div className="account-select">
+          <label>
+            Account:
+            <select
+              value={selectedAccount ?? ""}
+              onChange={handleAccountChange}
+            >
+              {accounts.map((acc) => (
+                <option key={acc.id} value={acc.id}>
+                  {acc.account_name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <div className="filter-select">
+          <label>
+            Filter:
+            <select value={filterOption} onChange={handleFilterChange}>
+              <option value="">All</option>
+              <option value="shinyYes">Shiny</option>
+              <option value="shinyNo">No shiny</option>
+              <option value="iv100">IV 100</option>
+              <option value="ivNot100">No IV 100</option>
+              <option value="ivRange">IV 96 - 98</option>
+              <option value="shundo">Shundo</option>
+            </select>
+          </label>
+        </div>
       </div>
-      <div>
-        <label>
-          Filter:
-          <select value={filterOption} onChange={handleFilterChange}>
-            <option value="">All</option>
-            <option value="shinyYes">Shiny</option>
-            <option value="shinyNo">No shiny</option>
-            <option value="iv100">IV 100</option>
-            <option value="ivNot100">No IV 100</option>
-            <option value="ivRange">IV 96 - 98</option>
-            <option value="shundo">Shundo</option>
-          </select>
-        </label>
-      </div>
+
       <table>
         <tbody>
           {filteredPokemonList.map((pokemon) => (

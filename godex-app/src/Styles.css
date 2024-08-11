@@ -188,3 +188,82 @@ body {
 .overlay.visible {
   display: block;
 }
+
+/* Home Component */
+
+.home {
+  color: #ffffff;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.home h1 {
+  color: #f6cf57;
+}
+
+.home-filter {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.home input[type="text"] {
+  width: 20%;
+  padding: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.home select {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  color: #333;
+}
+
+.home table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.home .pokemon-row {
+  border-bottom: 1px solid #ddd;
+  background-color: whitesmoke;
+  color: #333;
+}
+
+.home .pokemon-row:hover {
+  background-color: #f6cf57;
+}
+
+.home .pokemon-row img {
+  height: 100px;
+  width: auto;
+}
+
+.home .row-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.home .row-link td {
+  padding: 0.5rem;
+}
+
+.home label {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.home select {
+  margin-left: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
