@@ -46,7 +46,7 @@ function PokemonForm({ allPokemonNames }: PokemonFormProps) {
   const [nickname, setNickname] = useState("");
   const [isShiny, setIsShiny] = useState(false);
   const [iv, setIv] = useState<number | string>("");
-  const [date, setDate] = useState(formatDateForInput(new Date())); // Initialize with current date and time
+  const [date, setDate] = useState(formatDateForInput(new Date()));
   const [position, setPosition] = useState<L.LatLng | null>(null);
   const [homePosition, setHomePosition] = useState<L.LatLng | null>(null);
   const [accounts, setAccounts] = useState<
@@ -155,18 +155,17 @@ function PokemonForm({ allPokemonNames }: PokemonFormProps) {
       }
 
       alert("Pokémon added successfully!");
-      navigate(`/pokemon/${name}?accountId=${selectedAccount}`); // Redirect to Pokémon list page with accountId
+      navigate(`/pokemon/${name}?accountId=${selectedAccount}`);
 
-      // Optionally reset the form
       setName("");
       setNickname("");
       setIsShiny(false);
       setIv("");
-      setDate(formatDateForInput(new Date())); // Reset to current date and time
-      setPosition(homePosition); // Reset to home position
+      setDate(formatDateForInput(new Date()));
+      setPosition(homePosition);
       setSelectedAccount(null);
     } catch (error) {
-      alert((error as Error).message); // Explicitly type 'error' as 'Error'
+      alert((error as Error).message);
     }
   };
 
@@ -174,7 +173,6 @@ function PokemonForm({ allPokemonNames }: PokemonFormProps) {
     const value = e.target.value;
     setName(value);
 
-    // Filter the Pokémon names based on the input and limit to 3 suggestions
     if (value) {
       const filtered = allPokemonNames
         .filter((pokemonName) =>
@@ -205,125 +203,130 @@ function PokemonForm({ allPokemonNames }: PokemonFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>
-          Name:
-          <input
-            type="text"
-            value={name}
-            onChange={handleNameChange}
-            required
-          />
-          {filteredPokemonNames.length > 0 && (
-            <ul style={{ listStyleType: "none", padding: 0 }}>
-              {filteredPokemonNames.map((pokemonName) => (
-                <li
-                  key={pokemonName}
-                  onClick={() => handlePokemonSelect(capitalize(pokemonName))}
-                  style={{ cursor: "pointer" }}
-                >
-                  {capitalize(pokemonName)}
-                </li>
-              ))}
-            </ul>
-          )}
-        </label>
-      </div>
-      <div>
-        <label>
-          WP:
-          <input
-            type="number"
-            value={wp}
-            onChange={(e) => setWp(e.target.value)}
-            required
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          Nickname:
-          <input
-            type="text"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          Shiny:
-          <input
-            type="checkbox"
-            checked={isShiny}
-            onChange={(e) => setIsShiny(e.target.checked)}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          IV:
-          <input
-            type="number"
-            value={iv}
-            onChange={(e) => setIv(e.target.value)}
-            required
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          Date Caught:
-          <input
-            type="datetime-local"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            required
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          Account:
-          <select
-            value={selectedAccount ?? ""}
-            onChange={(e) => setSelectedAccount(Number(e.target.value))}
-            required
-          >
-            <option value="" disabled>
-              Select an account
-            </option>
-            {accounts.map((account) => (
-              <option key={account.id} value={account.id}>
-                {account.account_name}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <div>
-        <label>
-          Location (Pick from map):
-          <div style={{ height: "400px", width: "50%" }}>
-            {homePosition && (
-              <MapContainer
-                center={homePosition}
-                zoom={13}
-                style={{ height: "100%", width: "100%" }}
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                />
-                <LocationMarker />
-              </MapContainer>
+    <div className="pokemon-form">
+      <form onSubmit={handleSubmit}>
+        <h1>Add Pokémon</h1>
+        <div>
+          <label>
+            Name:
+            <input
+              type="text"
+              value={name}
+              onChange={handleNameChange}
+              required
+            />
+            {filteredPokemonNames.length > 0 && (
+              <ul style={{ listStyleType: "none", padding: 0 }}>
+                {filteredPokemonNames.map((pokemonName) => (
+                  <li
+                    key={pokemonName}
+                    onClick={() => handlePokemonSelect(capitalize(pokemonName))}
+                    style={{ cursor: "pointer" }}
+                  >
+                    {capitalize(pokemonName)}
+                  </li>
+                ))}
+              </ul>
             )}
-          </div>
-        </label>
-      </div>
-      <button type="submit">Add Pokémon</button>
-    </form>
+          </label>
+        </div>
+        <div>
+          <label>
+            WP:
+            <input
+              type="number"
+              value={wp}
+              onChange={(e) => setWp(e.target.value)}
+              required
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Nickname:
+            <input
+              type="text"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Shiny:
+            <input
+              type="checkbox"
+              checked={isShiny}
+              onChange={(e) => setIsShiny(e.target.checked)}
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            IV:
+            <input
+              type="number"
+              value={iv}
+              onChange={(e) => setIv(e.target.value)}
+              required
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Date Caught:
+            <input
+              type="datetime-local"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              required
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Account:
+            <select
+              value={selectedAccount ?? ""}
+              onChange={(e) => setSelectedAccount(Number(e.target.value))}
+              required
+            >
+              <option value="" disabled>
+                Select an account
+              </option>
+              {accounts.map((account) => (
+                <option key={account.id} value={account.id}>
+                  {account.account_name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
+            Location (Pick from map):
+            <div style={{ height: "400px", width: "100%" }}>
+              {homePosition && (
+                <MapContainer
+                  center={homePosition}
+                  zoom={13}
+                  style={{ height: "100%", width: "100%" }}
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  />
+                  <LocationMarker />
+                </MapContainer>
+              )}
+            </div>
+          </label>
+        </div>
+        <div className="button-wrapper">
+          <button type="submit">Add Pokémon</button>
+        </div>
+      </form>
+    </div>
   );
 }
 

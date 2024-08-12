@@ -354,7 +354,6 @@ body {
 
 .poke-list .pokemon-row:hover {
   background-color: #f6cf57;
-  color: #ffffff;
 }
 
 .poke-list .selected {
@@ -459,7 +458,6 @@ body {
 
 .user-details button:hover {
   background-color: #e5b744;
-  color: #ffffff;
 }
 
 .user-details .input-row {
@@ -491,11 +489,100 @@ body {
 
 .user-details .input-row button:hover {
   background-color: #e5b744;
-  color: #ffffff;
 }
 
 .user-details .map-container {
   height: 400px;
   width: 50%;
   margin-top: 20px;
+}
+
+/* Pokemon Form Component */
+
+.pokemon-form {
+  background-color: #3e5c76;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 60%;
+  margin: 0 auto;
+  color: #ffffff;
+}
+
+.pokemon-form h1 {
+  color: #f6cf57;
+}
+
+.pokemon-form label {
+  display: block;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+.pokemon-form input[type="text"],
+.pokemon-form input[type="number"],
+.pokemon-form input[type="datetime-local"],
+.pokemon-form select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  color: #333;
+  box-sizing: border-box; /* Ensure padding is included in the element's total width and height */
+}
+
+.pokemon-form input[type="checkbox"] {
+  margin-left: 0.5rem;
+}
+
+.pokemon-form ul {
+  background-color: #ffffff;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  max-height: 150px;
+  overflow-y: auto;
+  box-sizing: border-box; /* Ensure padding is included in the element's total width and height */
+}
+
+.pokemon-form ul li {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.pokemon-form ul li:hover {
+  background-color: #f6cf57;
+  color: #333;
+}
+
+.pokemon-form .button-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.pokemon-form button {
+  width: 100%;
+  max-width: 200px;
+  padding: 12px;
+  background-color: #f6cf57;
+  border: none;
+  color: #333;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pokemon-form button:hover {
+  background-color: #e5b744;
+}
+
+.pokemon-form .map-container {
+  width: 100%;
+  height: 400px;
+  margin-top: 1rem;
+  box-sizing: border-box;
 }

@@ -194,7 +194,8 @@ function PokemonEditForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="pokemon-form">
+      <h1>Edit {name}</h1>
       <div>
         <label>
           Name:
@@ -281,7 +282,7 @@ function PokemonEditForm() {
       <div>
         <label>
           Location (Pick from map):
-          <div style={{ height: "400px", width: "50%" }}>
+          <div style={{ height: "400px", width: "100%" }}>
             {position && (
               <MapContainer
                 center={position}
@@ -298,7 +299,9 @@ function PokemonEditForm() {
           </div>
         </label>
       </div>
-      <button type="submit">Update Pokémon</button>
+      <div className="button-wrapper">
+        <button type="submit">Update Pokémon</button>
+      </div>{" "}
     </form>
   );
 }
