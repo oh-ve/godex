@@ -20,7 +20,7 @@ const authenticateToken = (req, res, next) => {
             return res.sendStatus(403);
         }
         req.user = user;
-        console.log("Authenticated user:", req.user); // Add this log
+        console.log("Authenticated user:", req.user);
         next();
     });
 };

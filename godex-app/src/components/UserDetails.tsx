@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { parseLocation, capitalize } from "../utils";
-import type { Account } from "../types"; // Ensure you import the Account type
+import type { Account } from "../types";
 
 const markerIcon = new L.Icon({
   iconUrl: require("leaflet/dist/images/marker-icon.png"),
@@ -15,7 +15,7 @@ const UserDetails: React.FC = () => {
   const [position, setPosition] = useState<L.LatLng | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [homePosition, setHomePosition] = useState<L.LatLng | null>(null);
-  const [accounts, setAccounts] = useState<Account[]>([]); // Use the updated Account type
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [newAccount, setNewAccount] = useState<string>("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -71,7 +71,7 @@ const UserDetails: React.FC = () => {
             is_main: account.is_main,
             num_shiny: account.num_shiny,
             num_hundos: account.num_hundos,
-            num_shundos: account.num_shundos, // Include num_shundos in the mapping
+            num_shundos: account.num_shundos,
           }))
         );
       }
@@ -182,10 +182,7 @@ const UserDetails: React.FC = () => {
       <h3>Home Location</h3>
       {homePosition && (
         <MapContainer center={homePosition} zoom={13} className="map-container">
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <LocationMarker />
         </MapContainer>
       )}

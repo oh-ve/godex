@@ -78,7 +78,7 @@ function PokemonForm({ allPokemonNames }: PokemonFormProps) {
           if (homeCoords) {
             const homePosition = L.latLng(homeCoords.lat, homeCoords.lng);
             setHomePosition(homePosition);
-            setPosition(homePosition); // Set initial marker at home position
+            setPosition(homePosition);
           } else {
             console.error("Failed to parse home location:", data.user.home);
           }
@@ -312,10 +312,7 @@ function PokemonForm({ allPokemonNames }: PokemonFormProps) {
                   zoom={13}
                   style={{ height: "100%", width: "100%" }}
                 >
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  />
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                   <LocationMarker />
                 </MapContainer>
               )}

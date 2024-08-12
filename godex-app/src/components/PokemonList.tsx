@@ -33,7 +33,7 @@ const PokemonList: React.FC = () => {
     direction: "asc" | "desc";
   } | null>(null);
   const [filterShiny, setFilterShiny] = useState(false);
-  const [activeIvFilter, setActiveIvFilter] = useState<string | null>(null); // Only one IV filter can be active at a time
+  const [activeIvFilter, setActiveIvFilter] = useState<string | null>(null);
   const navigate = useNavigate();
   const { selectedPokemon, handleSelect } = useSelectedPokemon();
 
@@ -82,7 +82,7 @@ const PokemonList: React.FC = () => {
           (pokemon) => pokemon.name.toLowerCase() === name?.toLowerCase()
         );
         setPokemonList(filteredData);
-        setFilteredPokemonList(filteredData); // Set initial filtered list
+        setFilteredPokemonList(filteredData);
         setLoading(false);
       } catch (err: any) {
         setError(err.message);
@@ -314,10 +314,7 @@ const PokemonList: React.FC = () => {
                       zoom={5}
                       style={{ height: "120px", width: "250px" }}
                     >
-                      <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                      />
+                      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                       <Marker
                         position={[location.lat, location.lng]}
                         icon={markerIcon}

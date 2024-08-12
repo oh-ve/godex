@@ -31,7 +31,7 @@ export const SelectedPokemonProvider: React.FC<{ children: ReactNode }> = ({
       return data.sprites.front_default;
     } catch (error) {
       console.error("Error fetching sprite:", error);
-      return ""; // Return an empty string or a placeholder image URL
+      return "";
     }
   };
 

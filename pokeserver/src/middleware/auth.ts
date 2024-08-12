@@ -34,7 +34,7 @@ export const authenticateToken = (
       return res.sendStatus(403);
     }
     req.user = user as UserPayload;
-    console.log("Authenticated user:", req.user); // Add this log
+    console.log("Authenticated user:", req.user);
     next();
   });
 };
