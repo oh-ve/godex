@@ -192,14 +192,6 @@ const PokemonList: React.FC = () => {
     setActiveIvFilter(filter === activeIvFilter ? null : filter);
   };
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
-  if (error) {
-    return <p>Error: {error}</p>;
-  }
-
   return (
     <div className="poke-list">
       <h1>{`${accountName}'s ${capitalize(name ?? "")}s`}</h1>
@@ -351,6 +343,9 @@ const PokemonList: React.FC = () => {
           })}
         </tbody>
       </table>
+      <button className="back-button" onClick={() => navigate("/")}>
+        Back
+      </button>
     </div>
   );
 };

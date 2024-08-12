@@ -586,3 +586,7 @@ body {
   margin-top: 1rem;
   box-sizing: border-box;
 }
+
+.back-button {
+  margin-top: 20px;
+}
