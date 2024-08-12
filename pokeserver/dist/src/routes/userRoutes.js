@@ -13,19 +13,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const pg_1 = require("pg");
+const db_1 = __importDefault(require("../db"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const auth_1 = require("../middleware/auth");
-const pool = new pg_1.Pool({
-    connectionString: process.env.DATABASE_URL,
-});
 const userRoutes = (0, express_1.Router)();
 userRoutes.post("/register", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, password, home } = req.body;
     const hashedPassword = yield bcryptjs_1.default.hash(password, 10);
     try {
-        const result = yield pool.query("INSERT INTO users (username, password, home) VALUES ($1, $2, ST_GeogFromText($3)) RETURNING *", [username, hashedPassword, home]);
+        const result = yield db_1.default.query("INSERT INTO users (username, password, home) VALUES ($1, $2, ST_GeogFromText($3)) RETURNING *", [username, hashedPassword, home]);
         res.status(201).json(result.rows[0]);
     }
     catch (err) {
@@ -36,7 +33,7 @@ userRoutes.post("/register", (req, res) => __awaiter(void 0, void 0, void 0, fun
 userRoutes.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, password } = req.body;
     try {
-        const result = yield pool.query("SELECT * FROM users WHERE username = $1", [
+        const result = yield db_1.default.query("SELECT * FROM users WHERE username = $1", [
             username,
         ]);
         const user = result.rows[0];
@@ -59,7 +56,7 @@ userRoutes.post("/update-home", auth_1.authenticateToken, (req, res) => __awaite
         return res.status(400).json({ error: "User ID not found" });
     }
     try {
-        const client = yield pool.connect();
+        const client = yield db_1.default.connect();
         try {
             yield client.query("BEGIN");
             console.log("Received home:", home);
@@ -100,7 +97,7 @@ userRoutes.get("/protected", auth_1.authenticateToken, (req, res) => __awaiter(v
     }
     try {
         console.log("Fetching details for user ID:", userId);
-        const result = yield pool.query("SELECT id, username, ST_AsText(home) as home FROM users WHERE id = $1", [userId]);
+        const result = yield db_1.default.query("SELECT id, username, ST_AsText(home) as home FROM users WHERE id = $1", [userId]);
         console.log("Query result:", result.rows);
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "User not found" });
@@ -115,7 +112,7 @@ userRoutes.get("/protected", auth_1.authenticateToken, (req, res) => __awaiter(v
 }));
 userRoutes.get("/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield pool.query("SELECT * FROM users");
+        const result = yield db_1.default.query("SELECT * FROM users");
         res.json(result.rows);
     }
     catch (err) {
@@ -127,7 +124,7 @@ userRoutes.post("/users", (req, res) => __awaiter(void 0, void 0, void 0, functi
     const { username, password, home } = req.body;
     const hashedPassword = yield bcryptjs_1.default.hash(password, 10);
     try {
-        const result = yield pool.query("INSERT INTO users (username, password, home) VALUES ($1, $2, ST_GeogFromText($3)) RETURNING *", [username, hashedPassword, home]);
+        const result = yield db_1.default.query("INSERT INTO users (username, password, home) VALUES ($1, $2, ST_GeogFromText($3)) RETURNING *", [username, hashedPassword, home]);
         res.status(201).json(result.rows[0]);
     }
     catch (err) {

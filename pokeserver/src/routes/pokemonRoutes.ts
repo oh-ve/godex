@@ -1,10 +1,6 @@
 import { Router, Request, Response } from "express";
-import { Pool } from "pg";
+import pool from "../db";
 import { authenticateToken } from "../middleware/auth";
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
 
 const router = Router();
 
