@@ -68,24 +68,21 @@ userRoutes.post(
       try {
         await client.query("BEGIN");
 
-        console.log("Received home:", home); // Debugging log
+        console.log("Received home:", home);
 
-        // Adjusted regex pattern
         const match = home.match(/POINT\(([-.\d]+) ([-.\d]+)\)/);
         if (!match) {
           throw new Error("Invalid location format");
         }
         const [_, lon, lat] = match;
 
-        console.log("Parsed coordinates:", lon, lat); // Debugging log
+        console.log("Parsed coordinates:", lon, lat);
 
-        // Update the user's home location
         await client.query(
           "UPDATE users SET home = ST_SetSRID(ST_Point($1, $2), 4326)::geography WHERE id = $3",
           [lon, lat, userId]
         );
 
-        // Recalculate distances for all Pokémon of this user using ST_Distance
         await client.query(
           `UPDATE pokemon
            SET distance = ST_Distance(location::geography, ST_SetSRID(ST_Point($1, $2), 4326)::geography) / 1000

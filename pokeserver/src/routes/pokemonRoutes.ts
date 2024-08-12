@@ -122,7 +122,6 @@ router.put("/:id", authenticateToken, async (req: Request, res: Response) => {
     try {
       await client.query("BEGIN");
 
-      // Update the Pokémon details including the location, account, and WP
       const updateResult = await client.query(
         "UPDATE pokemon SET name = $1, nickname = $2, is_shiny = $3, iv = $4, date = $5, location = ST_GeomFromText($6, 4326), account_id = $7, wp = $8 WHERE id = $9 RETURNING *",
         [name, nickname, is_shiny, iv, date, location, account_id, wp, id]
@@ -135,7 +134,6 @@ router.put("/:id", authenticateToken, async (req: Request, res: Response) => {
 
       const pokemon = updateResult.rows[0];
 
-      // Recalculate the distance from the user's home location
       const distanceResult = await client.query(
         "SELECT ST_Distance(ST_GeomFromText($1, 4326)::geography, home::geography) / 1000 as distance FROM users WHERE id = $2",
         [location, pokemon.user_id]
@@ -143,7 +141,6 @@ router.put("/:id", authenticateToken, async (req: Request, res: Response) => {
 
       const distance = distanceResult.rows[0]?.distance || 0;
 
-      // Update the distance in the Pokémon record
       await client.query("UPDATE pokemon SET distance = $1 WHERE id = $2", [
         distance,
         id,
