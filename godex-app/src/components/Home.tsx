@@ -38,11 +38,14 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
       if (!token) {
         return;
       }
-      const response = await fetch("http://localhost:8080/api/accounts", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "https://godex-7rfv.onrender.com/api/accounts",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -74,7 +77,7 @@ const Home: React.FC<HomeProps> = ({ pokemonList, loading, error }) => {
         return;
       }
       const response = await fetch(
-        `http://localhost:8080/api/pokemon/account/${selectedAccount}`,
+        `https://godex-7rfv.onrender.com/api/pokemon/account/${selectedAccount}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -64,11 +64,14 @@ function PokemonForm({ allPokemonNames }: PokemonFormProps) {
         return;
       }
 
-      const response = await fetch("http://localhost:8080/api/protected", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "https://godex-7rfv.onrender.com/api/protected",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -92,11 +95,14 @@ function PokemonForm({ allPokemonNames }: PokemonFormProps) {
         return;
       }
 
-      const response = await fetch("http://localhost:8080/api/accounts", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "https://godex-7rfv.onrender.com/api/accounts",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -141,14 +147,17 @@ function PokemonForm({ allPokemonNames }: PokemonFormProps) {
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/pokemon", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        "https://godex-7rfv.onrender.com/api/pokemon",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to add Pokémon");

@@ -42,7 +42,7 @@ const PokemonList: React.FC = () => {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
-          `http://localhost:8080/api/accounts/${accountId}`,
+          `https://godex-7rfv.onrender.com/api/accounts/${accountId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -67,7 +67,7 @@ const PokemonList: React.FC = () => {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
-          `http://localhost:8080/api/pokemon/account/${accountId}`,
+          `https://godex-7rfv.onrender.com/api/pokemon/account/${accountId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -167,12 +167,15 @@ const PokemonList: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/pokemon/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `https://godex-7rfv.onrender.com/api/pokemon/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to delete Pokémon");
