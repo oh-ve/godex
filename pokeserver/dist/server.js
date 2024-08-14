@@ -3,8 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.pool = void 0;
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
+const pg_1 = require("pg");
 const dotenv_1 = __importDefault(require("dotenv"));
 const pokemonRoutes_1 = __importDefault(require("./src/routes/pokemonRoutes"));
 const accountRoutes_1 = __importDefault(require("./src/routes/accountRoutes"));
@@ -12,6 +14,17 @@ const userRoutes_1 = __importDefault(require("./src/routes/userRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 8080;
+const pool = new pg_1.Pool({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: Number(process.env.DB_PORT),
+    ssl: {
+        rejectUnauthorized: false,
+    },
+});
+exports.pool = pool;
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use("/api", userRoutes_1.default);
