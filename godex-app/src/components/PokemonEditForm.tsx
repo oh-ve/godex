@@ -66,7 +66,7 @@ function PokemonEditForm() {
 
       try {
         const response = await fetch(
-          `http://localhost:8080/api/pokemon/${id}`,
+          `https://godex-7rfv.onrender.com/api/pokemon/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -114,11 +114,14 @@ function PokemonEditForm() {
       }
 
       try {
-        const response = await fetch(`http://localhost:8080/api/accounts`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `https://godex-7rfv.onrender.com/api/accounts`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (response.ok) {
           const data = await response.json();
@@ -161,14 +164,17 @@ function PokemonEditForm() {
     };
 
     try {
-      const response = await fetch(`http://localhost:8080/api/pokemon/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        `https://godex-7rfv.onrender.com/api/pokemon/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to update Pokémon");

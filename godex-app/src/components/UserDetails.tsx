@@ -29,11 +29,14 @@ const UserDetails: React.FC = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:8080/api/protected", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "https://godex-7rfv.onrender.com/api/protected",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -56,11 +59,14 @@ const UserDetails: React.FC = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:8080/api/accounts", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "https://godex-7rfv.onrender.com/api/accounts",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -119,16 +125,19 @@ const UserDetails: React.FC = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:8080/api/update-home", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          home: `SRID=4326;POINT(${position.lng} ${position.lat})`,
-        }),
-      });
+      const response = await fetch(
+        "https://godex-7rfv.onrender.com/api/update-home",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            home: `SRID=4326;POINT(${position.lng} ${position.lat})`,
+          }),
+        }
+      );
 
       if (response.ok) {
         alert("Home location changed!");
@@ -147,16 +156,19 @@ const UserDetails: React.FC = () => {
       return;
     }
 
-    const response = await fetch("http://localhost:8080/api/accounts", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        account_name: newAccount,
-      }),
-    });
+    const response = await fetch(
+      "https://godex-7rfv.onrender.com/api/accounts",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          account_name: newAccount,
+        }),
+      }
+    );
 
     if (response.ok) {
       setAccounts([
