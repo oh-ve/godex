@@ -20,7 +20,9 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({ isOpen }, ref) => {
             <div className="selected-pokemon-text">
               <span>{pokemon.account_name}'s </span>
               <span>
-                <h3>{pokemon.name}</h3>
+                <h3 className={pokemon.is_shiny ? "h3shiny" : "sidebarh3"}>
+                  {pokemon.name}
+                </h3>
               </span>
               <p>{pokemon.wp} CP</p>
               <p>IV {pokemon.iv}</p>

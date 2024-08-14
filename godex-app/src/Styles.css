@@ -140,6 +140,10 @@ body {
   right: 0;
 }
 
+.h3shiny {
+  color: #f6cf57;
+}
+
 .selected-pokemon {
   background-color: whitesmoke;
   border-radius: 5%;
