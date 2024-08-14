@@ -1,12 +1,8 @@
 import { Router, Request, Response } from "express";
-import { Pool } from "pg";
+import { pool } from "../../server.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { authenticateToken } from "../middleware/auth";
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
 
 const userRoutes = Router();
 

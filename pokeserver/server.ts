@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
+import { Pool } from "pg";
 import dotenv from "dotenv";
 import pokemonRoutes from "./src/routes/pokemonRoutes";
 import accountRoutes from "./src/routes/accountRoutes";
@@ -9,6 +10,18 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 8080;
+
+const pool = new Pool({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: Number(process.env.DB_PORT),
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
+export { pool };
 
 app.use(cors());
 app.use(express.json());
